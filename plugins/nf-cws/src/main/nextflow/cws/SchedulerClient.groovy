@@ -15,6 +15,8 @@ class SchedulerClient {
     private int tasksInBatch = 0
     protected String dns
 
+    protected Map schedulerDataRequirements = null
+
     SchedulerClient( CWSConfig config, String runName ) {
         this.config = config
         this.runName = runName
@@ -24,6 +26,10 @@ class SchedulerClient {
 
     protected String getDNS() {
         return dns ? dns + "/v1/" : null
+    }
+
+    public Map getDataRequirements() {
+        return schedulerDataRequirements;
     }
 
     synchronized void registerScheduler( Map data ) {
@@ -120,6 +126,30 @@ class SchedulerClient {
 
     }
 
+    void getSchedulerDataRequirements() {
+        HttpURLConnection get = new URL("${getDNS()}/scheduler/$runName/dataRequirements").openConnection() as HttpURLConnection
+        get.setRequestMethod( "GET" )
+        get.setDoOutput(true)
+        int responseCode = get.getResponseCode()
+        if( responseCode != 200 ){
+            throw new IllegalStateException( "Got code: ${responseCode} from nextflow scheduler, while requesting scheduler data requirements" )
+        }
+        Map response = new JsonSlurper().parse(get.getInputStream()) as Map
+        schedulerDataRequirements = response
+    }
+
+    void submitTraceData( int id, Map traceData ){
+        HttpURLConnection put = new URL("${getDNS()}/scheduler/$runName/traces/$id").openConnection() as HttpURLConnection
+        put.setRequestMethod( "PUT" )
+        String message = JsonOutput.toJson( traceData )
+        put.setDoOutput(true)
+        put.setRequestProperty("Content-Type", "application/json")
+        put.getOutputStream().write(message.getBytes("UTF-8"))
+        int responseCode = put.getResponseCode()
+        if( responseCode != 200 ){
+            throw new IllegalStateException( "Got code: ${responseCode} from nextflow scheduler, while submitting trace data: ${traceData}" )
+        }
+    }
 
     ///* DAG */
 

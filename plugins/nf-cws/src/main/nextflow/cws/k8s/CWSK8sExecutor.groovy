@@ -100,6 +100,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         }
         this.schedulerBatch?.setSchedulerClient( schedulerClient )
         schedulerClient.registerScheduler( data )
+        schedulerClient.getSchedulerDataRequirements()
     }
 
     @Override
