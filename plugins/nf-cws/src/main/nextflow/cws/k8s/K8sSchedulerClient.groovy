@@ -7,6 +7,7 @@ import nextflow.exception.NodeTerminationException
 import nextflow.k8s.K8sConfig
 import nextflow.k8s.client.K8sClient
 import nextflow.k8s.client.K8sResponseException
+import nextflow.k8s.model.PodHostMount
 import nextflow.k8s.model.PodSecurityContext
 import nextflow.k8s.model.PodSpecBuilder
 import nextflow.k8s.model.PodVolumeClaim
@@ -20,6 +21,7 @@ class K8sSchedulerClient extends SchedulerClient {
     private final K8sClient k8sClient
     private final K8sConfig k8sConfig
     private final String namespace
+    private final Collection<PodHostMount> hostMounts
     private final Collection<PodVolumeClaim> volumeClaims
     private String ip
 
@@ -30,9 +32,11 @@ class K8sSchedulerClient extends SchedulerClient {
             String namespace,
             String runName,
             K8sClient k8sClient,
-            Collection<PodVolumeClaim> volumeClaims
+            Collection<PodVolumeClaim> volumeClaims,
+            Collection<PodHostMount> hostMounts
     ) {
         super( config, runName )
+        this.hostMounts = hostMounts ?: []
         this.volumeClaims = volumeClaims
         this.k8sClient = k8sClient
         this.k8sConfig = k8sConfig
@@ -91,6 +95,7 @@ class K8sSchedulerClient extends SchedulerClient {
                     .withLabel('component', 'scheduler')
                     .withLabel('tier', 'control-plane')
                     .withLabel('app', 'nextflow')
+                    .withHostMounts( hostMounts )
                     .withVolumeClaims( volumeClaims )
 
             if( schedulerConfig.getNodeSelector() )
@@ -123,7 +128,7 @@ class K8sSchedulerClient extends SchedulerClient {
             container.remove( 'command' )
             (container.resources as Map)?.remove( 'limits' )
 
-            k8sClient.podCreate( pod, Paths.get('.nextflow-scheduler.yaml') )
+            k8sClient.podCreate( pod, Paths.get('.nextflow-scheduler.yaml'), namespace)
         }
 
         //wait for scheduler to get ready
