@@ -2,7 +2,6 @@ package nextflow.cws.k8s
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import nextflow.cws.processor.WOWTaskRun
 import nextflow.executor.BashWrapperBuilder
 import nextflow.file.FileHelper
 import nextflow.processor.TaskRun
@@ -18,10 +17,10 @@ import java.nio.file.Path
 @Slf4j
 class WOWK8sWrapperBuilder extends BashWrapperBuilder {
 
-    WOWK8sConfig.Storage storage
+    CWSK8sConfig.Storage storage
     Path localWorkDir
 
-    WOWK8sWrapperBuilder(TaskRun task, WOWK8sConfig.Storage storage) {
+    WOWK8sWrapperBuilder(TaskRun task, CWSK8sConfig.Storage storage) {
         this(task)
         this.storage = storage
         if( storage ){

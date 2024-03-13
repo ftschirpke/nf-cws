@@ -7,9 +7,11 @@ import groovy.util.logging.Slf4j
 import nextflow.cws.CWSConfig
 import nextflow.cws.CWSSchedulerBatch
 import nextflow.cws.SchedulerClient
+import nextflow.cws.k8s.model.CWSPodOptions
 import nextflow.cws.processor.CWSTaskPollingMonitor
 import nextflow.k8s.K8sConfig
 import nextflow.k8s.K8sExecutor
+import nextflow.k8s.model.PodHostMount
 import nextflow.k8s.model.PodOptions
 import nextflow.processor.TaskHandler
 import nextflow.processor.TaskMonitor
@@ -72,6 +74,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         }
 
         if( cwsK8sConfig ) {
+            final CWSPodOptions podOptions = (k8sConfig as CWSK8sConfig).getPodOptions()
             schedulerClient = new K8sSchedulerClient(
                     cwsConfig,
                     cwsK8sConfig,
@@ -79,9 +82,9 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
                     k8sConfig.getNamespace(),
                     session.runName,
                     client,
-                    k8sConfig.getPodOptions().getVolumeClaims()
+                    podOptions.getVolumeClaims(),
+                    podOptions.getHostMounts()
             )
-            final PodOptions podOptions = k8sConfig.getPodOptions()
             Boolean traceEnabled = session.config.navigate('trace.enabled') as Boolean
             data = [
                     volumeClaims : podOptions.volumeClaims,
