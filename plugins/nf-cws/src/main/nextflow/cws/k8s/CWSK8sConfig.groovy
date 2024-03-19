@@ -145,7 +145,6 @@ class CWSK8sConfig extends K8sConfig {
     @PackageScope
     static class Storage {
 
-
         @Delegate
         Map<String,Object> target
         Collection<String> localClaims
@@ -180,19 +179,7 @@ class CWSK8sConfig extends K8sConfig {
         }
 
         String getCmd() {
-            target.cmd as String ?: "./$WOWTaskRun.CMD_INIT_RUN"
-        }
-
-        boolean withInitContainers() {
-            return "true".equalsIgnoreCase(target.initContainers as String)
-        }
-
-        /**
-         * If copy process is not running together with the main pod. If this is set, initContainers will be ignored
-         * @return
-         */
-        boolean separateCopy() {
-            return true
+            target.cmd as String
         }
     }
 }
