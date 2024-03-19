@@ -56,6 +56,7 @@ class K8sSchedulerClient extends SchedulerClient {
         }
         data.dns = getDNS()
         data.namespace = namespace
+        data.localClaims = hostMounts
         super.registerScheduler(data)
     }
 

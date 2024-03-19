@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.executor.BashWrapperBuilder
 import nextflow.file.FileHelper
+import nextflow.k8s.K8sWrapperBuilder
 import nextflow.processor.TaskRun
 import nextflow.util.Escape
 import java.nio.file.Path
@@ -15,7 +16,7 @@ import java.nio.file.Path
  */
 @CompileStatic
 @Slf4j
-class WOWK8sWrapperBuilder extends BashWrapperBuilder {
+class WOWK8sWrapperBuilder extends K8sWrapperBuilder {
 
     CWSK8sConfig.Storage storage
     Path localWorkDir
@@ -37,6 +38,7 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
             }
             if ( !this.targetDir || workDir == targetDir ) {
                 this.localWorkDir = FileHelper.getWorkFolder(storage.getWorkdir() as Path, task.getHash())
+                this.targetDir = this.localWorkDir
             }
         }
     }
@@ -60,6 +62,11 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
      */
     protected K8sWrapperBuilder() {}
 
+    @Override
+    protected boolean shouldUnstageOutputs() {
+        return localWorkDir || super.shouldUnstageOutputs()
+    }
+
     private String getStorageLocalWorkDir() {
         String localWorkDir = storage.getWorkdir()
         if ( !localWorkDir.endsWith("/") ){
@@ -71,6 +78,9 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
     @Override
     protected Map<String, String> makeBinding() {
         final Map<String,String> binding = super.makeBinding()
+
+        binding.K8sResolveSymlinks = null
+
         if ( binding.stage_inputs && storage && localWorkDir ) {
             final String cmd = """\
                     # create symlinks
@@ -80,6 +90,11 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
             """.stripIndent()
             binding.stage_inputs = cmd + binding.stage_inputs
         }
+
+        if ( localWorkDir ) {
+            binding.unstage_outputs = copyStrategy.getUnstageOutputFilesScript(outputFiles, localWorkDir)
+        }
+
         return binding
     }
 
