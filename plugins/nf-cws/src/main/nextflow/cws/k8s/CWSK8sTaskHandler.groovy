@@ -7,6 +7,7 @@ import nextflow.executor.BashWrapperBuilder
 import nextflow.extension.GroupKey
 import nextflow.file.FileHolder
 import nextflow.k8s.K8sTaskHandler
+import nextflow.k8s.K8sWrapperBuilder
 import nextflow.processor.TaskRun
 import nextflow.trace.TraceRecord
 import org.codehaus.groovy.runtime.GStringImpl
@@ -162,6 +163,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
                 workDir : task.getWorkDirStr(),
                 repetition : task.failCount,
                 inputSize : inputSize
+                outLabel : task.config.getOutLabel()?.toMap()
         ]
         return schedulerClient.registerTask( config, task.id.intValue() )
     }
