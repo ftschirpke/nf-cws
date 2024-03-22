@@ -1,5 +1,6 @@
 package nextflow.cws.k8s
 
+import com.google.common.hash.Hashing
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.PackageScope
@@ -7,14 +8,16 @@ import groovy.util.logging.Slf4j
 import nextflow.cws.CWSConfig
 import nextflow.cws.CWSSchedulerBatch
 import nextflow.cws.SchedulerClient
+import nextflow.cws.k8s.client.CWSK8sClient
 import nextflow.cws.k8s.model.CWSPodOptions
 import nextflow.cws.k8s.model.PodMountConfigWithMode
 import nextflow.cws.processor.CWSTaskPollingMonitor
 import nextflow.k8s.K8sConfig
 import nextflow.k8s.K8sExecutor
+import nextflow.k8s.client.K8sClient
+import nextflow.k8s.client.K8sResponseException
 import nextflow.k8s.model.PodHostMount
-import nextflow.k8s.model.PodMountConfig
-import nextflow.k8s.model.PodOptions
+import nextflow.k8s.model.PodVolumeClaim
 import nextflow.processor.TaskHandler
 import nextflow.processor.TaskMonitor
 import nextflow.processor.TaskRun
@@ -23,6 +26,7 @@ import nextflow.util.ServiceName
 import org.pf4j.ExtensionPoint
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 @Slf4j
 @CompileStatic
@@ -31,6 +35,12 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
 
     @PackageScope SchedulerClient schedulerClient
     @PackageScope CWSSchedulerBatch schedulerBatch
+
+    private CWSK8sClient client
+    /**
+     * Name of the created daemonSet
+     */
+    private String daemonSet = null
 
     @Override
     @Memoized
@@ -65,8 +75,18 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
     }
 
     @Override
+    protected K8sClient getClient() {
+        return client
+    }
+
+    @Override
     protected void register() {
         super.register()
+
+        final k8sConfig = getK8sConfig()
+        final clientConfig = k8sConfig.getClient()
+        this.client = new CWSK8sClient(clientConfig)
+        log.debug "[K8s] config=$k8sConfig; API client config=$clientConfig"
 
         final CWSK8sConfig cwsK8sConfig = k8sConfig as CWSK8sConfig
 
@@ -132,6 +152,16 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
                 log.error( "Error while closing scheduler", e)
             }
         }
+
+        if( daemonSet ){
+            try {
+                def result = client.daemonSetDelete( daemonSet )
+                log.trace "$result"
+            } catch (K8sResponseException e){
+                log.error("Couldn't delete daemonset: $daemonSet", e)
+            }
+        }
+        log.trace "Close K8s Executor"
     }
 
     protected void registerGetStatsConfigMap() {
@@ -157,11 +187,11 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         }
     }
 
-    protected String makeConfigMapName( String content ) {
+    protected static String makeConfigMapName(String content ) {
         "nf-get-stat-${hash(content)}"
     }
 
-    protected String hash( String text) {
+    protected static String hash(String text) {
         def hasher = Hashing .murmur3_32() .newHasher()
         hasher.putUnencodedChars(text)
         return hasher.hash().toString()
@@ -170,13 +200,13 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
     private void createDaemonSet(){
 
         final K8sConfig k8sConfig = getK8sConfig()
-        final PodOptions podOptions = k8sConfig.getPodOptions()
+        final CWSPodOptions podOptions = (k8sConfig as CWSK8sConfig).getPodOptions()
         final mounts = []
         final volumes = []
         int volume = 1
 
         // host mounts
-        for( PodHostMount entry : podOptions.hostMount ) {
+        for( PodHostMount entry : podOptions.hostMounts ) {
             final name = 'vol-' + volume++
             mounts << [name: name, mountPath: entry.mountPath]
             volumes << [name: name, hostPath: [path: entry.hostPath]]
@@ -207,7 +237,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         def spec = [
                 containers: [ [
                                       name: name,
-                                      image: k8sConfig.getStorage().getImageName(),
+                                      image: (k8sConfig as CWSK8sConfig).getStorage().getImageName(),
                                       volumeMounts: mounts,
                                       imagePullPolicy : 'IfNotPresent'
                               ] ],
@@ -215,8 +245,9 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
                 serviceAccount: client.config.serviceAccount
         ]
 
-        if( k8sConfig.getStorage().getNodeSelector() )
-            spec.put( 'nodeSelector', k8sConfig.getStorage().getNodeSelector().toSpec() as Serializable )
+        CWSK8sConfig.Storage storage = (k8sConfig as CWSK8sConfig).getStorage()
+        if( storage.getNodeSelector() )
+            spec.put( 'nodeSelector', storage.getNodeSelector().toSpec() as Serializable )
 
         def pod = [
                 apiVersion: 'apps/v1',
