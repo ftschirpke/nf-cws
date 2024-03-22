@@ -7,6 +7,7 @@ import nextflow.executor.BashWrapperBuilder
 import nextflow.extension.GroupKey
 import nextflow.file.FileHolder
 import nextflow.k8s.K8sTaskHandler
+import nextflow.k8s.K8sWrapperBuilder
 import nextflow.processor.TaskRun
 import nextflow.trace.TraceRecord
 import org.codehaus.groovy.runtime.GStringImpl
@@ -40,6 +41,15 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         this.client = executor.getCWSK8sClient()
         this.schedulerClient = executor.schedulerClient
         this.executor = executor
+    }
+
+    @Override
+    protected BashWrapperBuilder createBashWrapper(TaskRun task) {
+        CWSK8sConfig cwsK8sConfig = k8sConfig as CWSK8sConfig
+        if ( cwsK8sConfig?.locationAwareScheduling() ) {
+            return new WOWK8sWrapperBuilder( task , cwsK8sConfig.getStorage() )
+        }
+        return super.createBashWrapper(task)
     }
 
     protected Map newSubmitRequest0(TaskRun task, String imageName) {
@@ -124,6 +134,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
                 workDir : task.getWorkDirStr(),
                 repetition : task.failCount,
                 inputSize : inputSize
+                outLabel : task.config.getOutLabel()?.toMap()
         ]
         return schedulerClient.registerTask( config, task.id.intValue() )
     }
@@ -204,7 +215,6 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
                 continue
             switch( name ) {
                 case "scheduler_nodes_cost" :
-                case "scheduler_init_throughput":
                     traceRecord.put( name, value )
                     break
                 case "scheduler_best_cost" :
@@ -218,7 +228,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
-    private double parseDouble( String str, Path file , String row )  {
+    private static double parseDouble(String str, Path file, String row )  {
         try {
             return str.toDouble()
         }
@@ -228,7 +238,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
-    private long parseLong( String str, Path file , String row )  {
+    private static long parseLong(String str, Path file, String row )  {
         try {
             return str.toLong()
         }
