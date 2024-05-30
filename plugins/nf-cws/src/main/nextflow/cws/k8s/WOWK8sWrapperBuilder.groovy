@@ -19,6 +19,7 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
 
     CWSK8sConfig.Storage storage
     Path localWorkDir
+    String k8sResolveSymlinks
 
     WOWK8sWrapperBuilder(TaskRun task, CWSK8sConfig.Storage storage) {
         this(task)
@@ -43,6 +44,16 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
     WOWK8sWrapperBuilder(TaskRun task) {
         super(task)
         this.headerScript = "NXF_CHDIR=${Escape.path(task.workDir)}"
+
+        String architecture = System.getProperty("os.arch");
+        if (architecture == "amd64" || architecture == "x86_64") {
+            this.k8sResolveSymlinks = "getStatsAndResolveSymlinks_linux_x86"
+        } else if (architecture == "aarch64" || architecture == "arm64") {
+            this.k8sResolveSymlinks = "getStatsAndResolveSymlinks_linux_aarch64"
+        } else {
+            throw new RuntimeException("The ${architecture} architecture is by default not supported for WOW." +
+                    "You may compile the getStatsAndResolveSymlinks.c yourself and add it to the resources directory.")
+        }
     }
     /**
      * only for testing purpose -- do not use
@@ -92,7 +103,7 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
     protected String getLaunchCommand(String interpreter, String env) {
         String cmd = ''
         if( storage && localWorkDir ){
-            cmd += "local INFILESTIME=\$(/etc/nextflow/getStatsAndResolveSymlinks infiles \"${workDir.toString()}/.command.infiles\" \"${getStorageLocalWorkDir()}\" \"\$PWD/\" || true)\n"
+            cmd += "local INFILESTIME=\$(/etc/nextflow/${k8sResolveSymlinks} infiles \"${workDir.toString()}/.command.infiles\" \"${getStorageLocalWorkDir()}\" \"\$PWD/\" || true)\n"
         }
         cmd += super.getLaunchCommand(interpreter, env)
         if( storage && localWorkDir && isTraceRequired() ){
@@ -108,7 +119,7 @@ class WOWK8sWrapperBuilder extends BashWrapperBuilder {
         String cmd = super.getCleanupCmd( scratch )
         if( storage && localWorkDir ){
             cmd += "mkdir -p \"${localWorkDir.toString()}/\" || true\n"
-            cmd += "local OUTFILESTIME=\$(/etc/nextflow/getStatsAndResolveSymlinks outfiles \"${workDir.toString()}/.command.outfiles\" \"${getStorageLocalWorkDir()}\" \"${localWorkDir.toString()}/\" || true)\n"
+            cmd += "local OUTFILESTIME=\$(/etc/nextflow/${k8sResolveSymlinks} outfiles \"${workDir.toString()}/.command.outfiles\" \"${getStorageLocalWorkDir()}\" \"${localWorkDir.toString()}/\" || true)\n"
             if ( isTraceRequired() ) {
                 cmd += "echo \"outfiles_time=\${OUTFILESTIME}\" >> ${workDir.resolve(TaskRun.CMD_TRACE)}"
             }

@@ -100,6 +100,7 @@ int getShortDescrAndTimestamp(
 int main(int argc, char * const argv[]) {
 
     if (argc < 5) {
+        fprintf(stderr, "Usage: %s [infiles|outfiles] <result_filename> <local_dir> <dir_to_search>\n", argv[0]);
         fprintf(stderr, "Error: too few arguments!\n");
         return -1;
     }
