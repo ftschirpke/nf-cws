@@ -25,7 +25,6 @@ import nextflow.util.Duration
 import nextflow.util.ServiceName
 import org.pf4j.ExtensionPoint
 
-import java.nio.file.Path
 import java.nio.file.Paths
 
 @Slf4j
@@ -177,9 +176,19 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
     protected void registerGetStatsConfigMap() {
         Map<String,String> configMap = [:]
 
-        final statFile = '/usr/local/bin/getStatsAndResolveSymlinks' as Path
-        final content = statFile.bytes.encodeBase64().toString()
-        configMap['getStatsAndResolveSymlinks'] = content
+        String architectureStatFileName
+        final String architecture = System.getProperty("os.arch");
+        if (architecture == "amd64" || architecture == "x86_64") {
+            architectureStatFileName = "getStatsAndResolveSymlinks_linux_x86"
+        } else if (architecture == "aarch64" || architecture == "arm64") {
+            architectureStatFileName = "getStatsAndResolveSymlinks_linux_aarch64"
+        } else {
+            throw new RuntimeException("The ${architecture} architecture is by default not supported for WOW." +
+                    "You may compile the getStatsAndResolveSymlinks.c yourself and add it to the resources directory.")
+        }
+        final contentStream = CWSK8sExecutor.class.getResourceAsStream(architectureStatFileName)
+        final content = contentStream.bytes.encodeBase64().toString()
+        configMap[WOWK8sWrapperBuilder.statFileName] = content
 
         String configMapName = makeConfigMapName(content)
         tryCreateConfigMap(configMapName, configMap)
