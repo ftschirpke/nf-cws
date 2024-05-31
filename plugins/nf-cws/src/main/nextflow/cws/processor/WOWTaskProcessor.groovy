@@ -6,7 +6,6 @@ import nextflow.Session
 import nextflow.cws.wow.file.WOWFileHelper
 import nextflow.exception.MissingFileException
 import nextflow.executor.Executor
-import nextflow.file.FileHelper
 import nextflow.file.FilePatternSplitter
 import nextflow.processor.TaskProcessor
 import nextflow.processor.TaskRun
@@ -21,6 +20,7 @@ import java.nio.file.Path
 
 @Slf4j
 class WOWTaskProcessor extends TaskProcessor {
+
     WOWTaskProcessor(String name, Executor executor, Session session, BaseScript script, ProcessConfig config, BodyDef taskBody ) {
         super(name, executor, session, script, config, taskBody)
     }
@@ -40,14 +40,12 @@ class WOWTaskProcessor extends TaskProcessor {
         catch( NoSuchFileException e ) {
             throw new MissingFileException("Cannot access directory: '$workDir'", e)
         }
-
         return files.sort()
     }
 
 
     @Override
     protected void collectOutFiles(TaskRun task, FileOutParam param, Path workDir, Map context ) {
-
         final List<Path> allFiles = []
         // type file parameter can contain a multiple files pattern separating them with a special character
         def entries = param.getFilePatterns(context, task.workDir)
@@ -94,12 +92,6 @@ class WOWTaskProcessor extends TaskProcessor {
                 throw new MissingFileException(msg)
             }
         }
-
         task.setOutput( param, allFiles.size()==1 ? allFiles[0] : allFiles )
-
     }
-
-
-
-
 }
