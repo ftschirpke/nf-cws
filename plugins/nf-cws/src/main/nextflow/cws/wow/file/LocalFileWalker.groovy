@@ -180,23 +180,6 @@ class LocalFileWalker {
 
     }
 
-    static Path fakePath( Path path, Path destination ) {
-
-        String pathHelper = path.toString()
-        String n1 = FilesEx.getName(destination.getParent())
-        String n2 = FilesEx.getName(destination)
-        String cdir = (n1 as Path).resolve(n2).toString()
-
-        int index = pathHelper.indexOf( cdir )
-
-        if( index == -1 ){
-            log.error("Cannot calculate fake path for path: $path to dest.: $destination cdir: $cdir")
-            return path
-        }
-
-        return destination.getParent().getParent().resolve(pathHelper.substring( index ))
-    }
-
     static Path exists( final File outfile, final Path file, final Path workDir, final LinkOption option ){
 
         String rootDirString
@@ -207,7 +190,7 @@ class LocalFileWalker {
             return null
 
         final Path rootDir = rootDirString as Path
-        final Path fakePath = fakePath( file, rootDir )
+        final Path fakePath = WOWFileHelper.fakePath( file, rootDir )
 
         //TODO ignore link
         final Optional<Path> first = Files.lines( outfile.toPath() )
