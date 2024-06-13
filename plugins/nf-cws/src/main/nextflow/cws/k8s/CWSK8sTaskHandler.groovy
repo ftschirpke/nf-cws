@@ -109,12 +109,11 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
                 schedulerParams : [:],
                 name : task.name,
                 task : task.processor.name,
-                stageInMode : task.getConfig().stageInMode,
+                stageInMode : task.config.stageInMode,
                 cpus : task.config.getCpus(),
                 memoryInBytes : task.config.getMemory()?.toBytes(),
                 workDir : task.getWorkDirStr(),
                 repetition : task.failCount,
-                outLabel : task.config.getOutLabel()?.toMap()
         ]
         return schedulerClient.registerTask( config, task.id.intValue() )
     }

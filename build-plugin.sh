@@ -6,4 +6,4 @@ rm -rf build/plugins/nf-cws*
 rm -rf .gradle
 make buildPlugins
 
-docker build . -t friedricht/nf-cws-wow
+sudo docker build . -t friedricht/nf-cws-wow

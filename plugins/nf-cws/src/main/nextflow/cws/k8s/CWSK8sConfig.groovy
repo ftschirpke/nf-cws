@@ -16,7 +16,7 @@ import java.util.stream.Collectors
 class CWSK8sConfig extends K8sConfig {
 
     private Map<String,Object> target
-    private CWSPodOptions podOptions
+    private CWSPodOptions podOptions = new CWSPodOptions();
 
     CWSK8sConfig(Map<String, Object> config) {
         super(config)

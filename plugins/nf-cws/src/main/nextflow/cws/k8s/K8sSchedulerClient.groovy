@@ -24,6 +24,7 @@ class K8sSchedulerClient extends SchedulerClient {
     private final String namespace
     private final Collection<PodHostMount> hostMounts
     private final Collection<PodVolumeClaim> volumeClaims
+    private String ip
 
     K8sSchedulerClient(
             CWSConfig config,
@@ -54,6 +55,11 @@ class K8sSchedulerClient extends SchedulerClient {
         data.namespace = namespace
         data.localClaims = hostMounts
         super.registerScheduler(data)
+    }
+
+    @Override
+    protected String getDNS(){
+        return "http://${ip}:${schedulerConfig.getPort()}/v1/"
     }
 
     private void startScheduler(){
