@@ -10,8 +10,13 @@ import nextflow.script.ProcessConfig
 import nextflow.script.ProcessFactory
 
 class CWSProcessFactory extends ProcessFactory {
+    private BaseScript owner
+    private Session session
+
     CWSProcessFactory(BaseScript ownerScript, Session session ) {
         super(ownerScript, session)
+        this.owner = ownerScript
+        this.session = session
     }
 
     @Override

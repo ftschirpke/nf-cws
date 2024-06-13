@@ -3,6 +3,7 @@ package nextflow.cws.processor
 import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import nextflow.Session
+import nextflow.cws.k8s.localdata.LocalPath
 import nextflow.cws.wow.file.WOWFileHelper
 import nextflow.exception.MissingFileException
 import nextflow.executor.Executor
@@ -26,8 +27,36 @@ class WOWTaskProcessor extends TaskProcessor {
     }
 
     @PackageScope
-    @Override
-    List<Path> fetchResultFiles( FileOutParam param, String namePattern, Path workDir ) {
+    static List<Path> filterByRemovingStagedInputs( TaskRun task, List<Path> collectedFiles, Path workDir ) {
+
+        // get the list of input files
+        final List<String> allStaged = task.getStagedInputs()
+        final List<Path> result = new ArrayList<>(collectedFiles.size())
+
+        for( int i=0; i<collectedFiles.size(); i++ ) {
+            final it = collectedFiles.get(i)
+            //Error, if it is not of the same type as workDir
+            final relName = workDir.relativize(it instanceof LocalPath ? it.fakePath() : it).toString()
+            if( !allStaged.contains(relName) )
+                result.add(it)
+        }
+
+        return result
+    }
+
+    @PackageScope
+    static Map visitOptions( FileOutParam param, String namePattern ) {
+        final opts = [:]
+        opts.relative = false
+        opts.hidden = param.hidden ?: namePattern.startsWith('.')
+        opts.followLinks = param.followLinks
+        opts.maxDepth = param.maxDepth
+        opts.type = param.type ? param.type : (namePattern.contains('**') ? 'file' : 'any')
+        return opts
+    }
+
+    @PackageScope
+    static List<Path> fetchResultFiles( FileOutParam param, String namePattern, Path workDir ) {
         assert namePattern
         assert workDir
 

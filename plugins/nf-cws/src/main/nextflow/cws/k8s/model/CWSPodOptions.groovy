@@ -5,21 +5,12 @@ import nextflow.k8s.model.PodOptions
 
 class CWSPodOptions extends PodOptions {
 
-    private Collection<PodHostMount> hostMounts;
+    private Collection<PodHostMount> hostMounts
 
     CWSPodOptions(List<Map> options = null) {
         super(options)
         int size = options ? options.size() : 0
         hostMounts = new HashSet<>(size);
-    }
-
-    @Override
-    void create(Map<String, String> entry) {
-        if (entry.localPath && entry.mountPath) {
-            hostMounts << new PodHostMount(entry.localPath, entry.mountPath)
-        } else {
-            super.create(entry)
-        }
     }
 
     Collection<PodHostMount> getHostMounts() {
