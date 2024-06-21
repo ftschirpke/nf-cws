@@ -16,23 +16,22 @@
 #define STACK_MIN_SIZE 1
 
 #define SYMLINK_TARGET_BUFFER_SIZE 500
-#define MAX_PATH_LENGTH 4096
 
 struct symlink {
-    char* src;
-    char* dst;
+    char * src;
+    char * dst;
 };
 
 struct stack {
     int top;
     int size;
-    struct symlink* items;
+    struct symlink * items;
 };
 
 struct stack * newStack(int size) {
-    struct stack* ptr = (struct stack*) malloc(sizeof(struct stack*));
+    struct stack * ptr = (struct stack *) malloc(sizeof(struct stack *));
     ptr->top = -1;
-    ptr->items = (struct symlink*) malloc(sizeof(struct symlink) * size);
+    ptr->items = (struct symlink *) malloc(sizeof(struct symlink) * size);
     ptr->size = size;
     return ptr;
 }
@@ -41,25 +40,25 @@ int isEmpty(struct stack * ptr) {
     return (ptr->top == -1);
 }
 
-struct stack * push_symlink(struct stack* ptr, char* const src, char* const dst) {
+struct stack * push_symlink(struct stack * ptr, char * const src, char * const dst) {
     if (ptr->top + 1 == ptr->size) {
-        struct stack* new_ptr = newStack(ptr->size * 2);
-        new_ptr->items = (struct symlink*) realloc(ptr->items, sizeof(struct symlink) * ptr->size * 2);
+        struct stack * new_ptr = newStack(ptr->size * 2);
+        new_ptr->items = (struct symlink *) realloc(ptr->items, sizeof(struct symlink) * ptr->size * 2);
         new_ptr->top = ptr->top;
         free(ptr);
         ptr = new_ptr;
     }
     ptr->top++;
-    char* source = (char*) malloc(strlen(src) + 1);
-    strncpy(source, src, MAX_PATH_LENGTH);
-    char* destination = (char*) malloc(strlen(dst) + 1);
-    strncpy(destination, dst, MAX_PATH_LENGTH);
+    char * source = (char *) malloc(strlen(src) + 1);
+    strcpy(source, src);
+    char * destination = (char *) malloc(strlen(dst) + 1);
+    strcpy(destination, dst);
     ptr->items[ptr->top].src = source;
     ptr->items[ptr->top].dst = destination;
     return ptr;
 }
 
-const struct symlink* const head(struct stack* ptr) {
+const struct symlink * const head(struct stack * ptr) {
     if (isEmpty(ptr)) {
         fprintf(stderr, "Error: Stack is empty!");
         exit(EXIT_FAILURE);
@@ -67,7 +66,7 @@ const struct symlink* const head(struct stack* ptr) {
     return &(ptr->items[ptr->top]);
 }
 
-void delete_top(struct stack* ptr) {
+void delete_top(struct stack * ptr) {
     if (isEmpty(ptr)) {
         fprintf(stderr, "Error: Stack is empty!");
         exit(EXIT_FAILURE);
@@ -77,7 +76,7 @@ void delete_top(struct stack* ptr) {
     ptr->top--;
 }
 
-void deleteStack(struct stack* ptr) {
+void deleteStack(struct stack * ptr) {
     while (!isEmpty(ptr)) {
         delete_top(ptr);
     }
@@ -86,21 +85,20 @@ void deleteStack(struct stack* ptr) {
     free(ptr);
 }
 
-int collectFileInformation(
-    char* const* dir_to_search, const int version, const char* const local_dir, const char* const result_filename
-);
-int getFullDescr(
-    char* const* dir, const char* const local_dir, FILE* file_ptr
-);
-int getShortDescrAndTimestamp(
-    char* const* dir, const char* const local_dir, FILE * file_ptr
-);
+int collectFileInformation(char * const * dir_to_search, const int version,
+    const char * const local_dir,
+    const char * const result_filename);
+int getFullDescr(char * const * dir,
+    const char * const local_dir,
+    FILE * file_ptr);
+int getShortDescrAndTimestamp(char * const * dir,
+    const char * const local_dir,
+    FILE * file_ptr);
 
 
-int main(int argc, char * const argv[]) {
+int main(int arc, char * const argv[]) {
 
-    if (argc < 5) {
-        fprintf(stderr, "Usage: %s [infiles|outfiles] <result_filename> <local_dir> <dir_to_search>\n", argv[0]);
+    if (arc < 5) {
         fprintf(stderr, "Error: too few arguments!\n");
         return -1;
     }
@@ -112,15 +110,15 @@ int main(int argc, char * const argv[]) {
         return gettimeofday_rc;
     }
 
-    if (strncmp(argv[0], INFILES_NAME, strlen(INFILES_NAME)) != 0
-            && strncmp(argv[0], OUTFILES_NAME, strlen(OUTFILES_NAME)) != 0) {
+    if (strcmp(argv[0], INFILES_NAME) != 0 && strcmp(argv[0], OUTFILES_NAME) != 0) {
         fprintf(stderr, "Error: version must be '%s' or '%s'\n", INFILES_NAME, OUTFILES_NAME);
         return -1;
     }
-    const char* const name = argv++[0];
-    const int version = strncmp(name, INFILES_NAME, 8) == 0 ? SHORT_DESCR_WITH_TIMESTAMP : FULL_DESCR;
-    const char* const result_filename = argv++[0];
-    const char* const local_dir = argv++[0];
+    const char * const name = argv++[0];
+    const int version = strcmp(name, INFILES_NAME) == 0
+        ? SHORT_DESCR_WITH_TIMESTAMP : FULL_DESCR;
+    const char * const result_filename = argv++[0];
+    const char * const local_dir = argv++[0];
     int rc = collectFileInformation(argv, version, local_dir, result_filename);
 
     if ((gettimeofday_rc = clock_gettime(CLOCK_REALTIME, &end_time)) != 0) {
@@ -134,9 +132,10 @@ int main(int argc, char * const argv[]) {
     return rc;
 }
 
-int collectFileInformation(
-    char* const* dir_to_search, const int version, const char* const local_dir, const char* const result_filename
-) {
+int collectFileInformation(char * const * dir_to_search, const int version,
+    const char * const local_dir, 
+    const char * const result_filename) {
+
     DIR* dir_ptr = opendir(local_dir);
     if (dir_ptr) {
         closedir(dir_ptr);
@@ -166,7 +165,7 @@ int collectFileInformation(
         case SHORT_DESCR_WITH_TIMESTAMP:
             rc = getShortDescrAndTimestamp(dir_to_search, local_dir, file_ptr);
             break;
-
+        
         default:
             break;
     }
@@ -174,12 +173,12 @@ int collectFileInformation(
     return rc;
 }
 
-int getFullDescr(
-    char* const* dir, const char* const local_dir, FILE* file_ptr
-) {
-    FTS* fts_ptr;
-    FTSENT* ptr;
-    FTSENT* ch_ptr;
+int getFullDescr(char * const * dir,
+    const char * const local_dir,
+    FILE * file_ptr) {
+
+    FTS * fts_ptr;
+    FTSENT * ptr, * ch_ptr;
     int fts_options = FTS_PHYSICAL;
 
     if ((fts_ptr = fts_open(dir, fts_options, NULL)) == NULL) {
@@ -191,8 +190,8 @@ int getFullDescr(
         return 0;
     }
     int skip_next = 0;
-    struct stack* symlink_stack = newStack(STACK_MIN_SIZE);
-    char* symlink_target_path = (char*) malloc(SYMLINK_TARGET_BUFFER_SIZE);
+    struct stack * symlink_stack = newStack(STACK_MIN_SIZE);
+    char * symlink_target_path = (char *) malloc(SYMLINK_TARGET_BUFFER_SIZE);
     while ((ptr = fts_read(fts_ptr)) != NULL) {
         if (ptr->fts_info == FTS_DP) {
             continue;
@@ -202,7 +201,7 @@ int getFullDescr(
             continue;
         }
         char * file_type;
-        strncpy(symlink_target_path, "", 1);
+        strcpy(symlink_target_path, "");
         int exists;
         switch (ptr->fts_info) {
             case FTS_D:
@@ -217,7 +216,7 @@ int getFullDescr(
                 file_type = "symbolic link";
                 realpath(ptr->fts_path, symlink_target_path);
                 if (symlink_target_path == NULL) {
-                    strncpy(symlink_target_path, "", 1);
+                    strcpy(symlink_target_path, "");
                 }
                 exists = 1 + access(symlink_target_path, F_OK); // test for file existence
                 if (!exists) {
@@ -228,8 +227,6 @@ int getFullDescr(
                 int stat_rv;
                 if ((stat_rv = stat(symlink_target_path, &target_file_stat)) != 0) {
                     fprintf(stderr, "Error reading the file %s\n", symlink_target_path);
-                    free(symlink_target_path);
-                    deleteStack(symlink_stack);
                     return stat_rv;
                 }
                 if (S_ISDIR(target_file_stat.st_mode)) {
@@ -257,7 +254,7 @@ int getFullDescr(
                 exists = 1;
                 break;
         }
-        if (!isEmpty(symlink_stack) && strncmp(file_type, "symbolic link", 13) != 0) {
+        if (!isEmpty(symlink_stack) && file_type != "symbolic link") {
             while (strncmp(head(symlink_stack)->src, ptr->fts_path, strlen(head(symlink_stack)->src)) != 0) {
                 delete_top(symlink_stack);
                 if (isEmpty(symlink_stack)) {
@@ -265,13 +262,13 @@ int getFullDescr(
                 }
             }
             if (!isEmpty(symlink_stack)) {
-                strncpy(symlink_target_path, head(symlink_stack)->dst, MAX_PATH_LENGTH);
+                strcpy(symlink_target_path, head(symlink_stack)->dst);
                 int fts_len = strlen(ptr->fts_path);
                 int to_replace_len = strlen(head(symlink_stack)->src);
                 int rel_len = fts_len - to_replace_len;
                 char rel_path[rel_len+1];
                 memcpy(rel_path, &ptr->fts_path[to_replace_len], rel_len+1);
-                strncat(symlink_target_path, rel_path, rel_len);
+                strcat(symlink_target_path, rel_path);
             }
         }
         fprintf(
@@ -326,8 +323,8 @@ int getShortDescrAndTimestamp(char * const * dir,
         return 0;
     }
     int skip_next = 0;
-    struct stack* symlink_stack = newStack(STACK_MIN_SIZE);
-    char* symlink_target_path = (char*) malloc(SYMLINK_TARGET_BUFFER_SIZE);
+    struct stack * symlink_stack = newStack(STACK_MIN_SIZE);
+    char * symlink_target_path = (char *) malloc(SYMLINK_TARGET_BUFFER_SIZE);
     while ((ptr = fts_read(fts_ptr)) != NULL) {
         if (ptr->fts_info == FTS_DP) {
             continue;
@@ -340,7 +337,7 @@ int getShortDescrAndTimestamp(char * const * dir,
             continue;
         }
         char * file_type;
-        strncpy(symlink_target_path, "", 1);
+        strcpy(symlink_target_path, "");
         int exists;
         switch (ptr->fts_info) {
             case FTS_D:
@@ -357,7 +354,7 @@ int getShortDescrAndTimestamp(char * const * dir,
                 symlink_target_path[bytes_written] = '\0';
                 // realpath(ptr->fts_path, symlink_target_path);
                 if (symlink_target_path == NULL) {
-                    strncpy(symlink_target_path, "", 1);
+                    strcpy(symlink_target_path, "");
                 }
                 exists = 1 + access(symlink_target_path, F_OK); // test for file existence
                 if (!exists) {
@@ -368,8 +365,6 @@ int getShortDescrAndTimestamp(char * const * dir,
                 int stat_rv;
                 if ((stat_rv = stat(symlink_target_path, &target_file_stat)) != 0) {
                     fprintf(stderr, "Error reading the file %s\n", symlink_target_path);
-                    free(symlink_target_path);
-                    deleteStack(symlink_stack);
                     return stat_rv;
                 }
                 if (S_ISDIR(target_file_stat.st_mode)) {
@@ -397,7 +392,7 @@ int getShortDescrAndTimestamp(char * const * dir,
                 exists = 1;
                 break;
         }
-        if (!isEmpty(symlink_stack) && strncmp(file_type, "symbolic link", 13) != 0) {
+        if (!isEmpty(symlink_stack) && file_type != "symbolic link") {
             while (strncmp(head(symlink_stack)->src, ptr->fts_path, strlen(head(symlink_stack)->src)) != 0) {
                 delete_top(symlink_stack);
                 if (isEmpty(symlink_stack)) {
@@ -405,13 +400,13 @@ int getShortDescrAndTimestamp(char * const * dir,
                 }
             }
             if (!isEmpty(symlink_stack)) {
-                strncpy(symlink_target_path, head(symlink_stack)->dst, 4096);
+                strcpy(symlink_target_path, head(symlink_stack)->dst);
                 int fts_len = strlen(ptr->fts_path);
                 int to_replace_len = strlen(head(symlink_stack)->src);
                 int rel_len = fts_len - to_replace_len;
                 char rel_path[rel_len+1];
                 memcpy(rel_path, &ptr->fts_path[to_replace_len], rel_len+1);
-                strncat(symlink_target_path, rel_path, rel_len);
+                strcat(symlink_target_path, rel_path);
             }
         }
         fprintf(
