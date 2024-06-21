@@ -8,7 +8,7 @@ import nextflow.script.ProcessFactory
 /**
  * Central, global instance to manage all generated Executor instances
  */
-class CWSSession extends Session {
+class CWSSession {
 
     static final CWSSession INSTANCE = new CWSSession()
 
@@ -23,10 +23,4 @@ class CWSSession extends Session {
     }
 
     private CWSSession() {}
-
-    @Override
-    ProcessFactory newProcessFactory(BaseScript script) {
-        new CWSProcessFactory(script, this)
-    }
-
 }
