@@ -24,6 +24,7 @@ class WOWTaskProcessor extends TaskProcessor {
 
     WOWTaskProcessor(String name, Executor executor, Session session, BaseScript script, ProcessConfig config, BodyDef taskBody ) {
         super(name, executor, session, script, config, taskBody)
+        log.info("FRIEDRICH: we won, this is WOWTaskProcessor::WOWTaskProcessor")
     }
 
     @PackageScope
@@ -57,6 +58,7 @@ class WOWTaskProcessor extends TaskProcessor {
 
     @PackageScope
     static List<Path> fetchResultFiles( FileOutParam param, String namePattern, Path workDir ) {
+        log.info("FRIEDRICH: we won, this is WOWTaskProcessor::fetchResultFiles")
         assert namePattern
         assert workDir
 
@@ -75,6 +77,7 @@ class WOWTaskProcessor extends TaskProcessor {
 
     @Override
     protected void collectOutFiles(TaskRun task, FileOutParam param, Path workDir, Map context ) {
+        log.info("FRIEDRICH: we won, this is WOWTaskProcessor::collectOutFiles")
         final List<Path> allFiles = []
         // type file parameter can contain a multiple files pattern separating them with a special character
         def entries = param.getFilePatterns(context, task.workDir)

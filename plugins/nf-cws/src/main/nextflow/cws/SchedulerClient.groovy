@@ -131,6 +131,7 @@ class SchedulerClient {
                     uid : it.getId()
             ] as Map<String, Object>
         }
+        log.info("FRIEDRICH: submitting vertices: {}", verticesToSubmit)
         HttpURLConnection put = new URL("${getDNS()}/scheduler/$runName/DAG/vertices").openConnection() as HttpURLConnection
         put.setRequestMethod( "POST" )
         String message = JsonOutput.toJson( verticesToSubmit )

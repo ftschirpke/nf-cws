@@ -176,6 +176,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
             throw new RuntimeException("The ${architecture} architecture is by default not supported for WOW." +
                     "You may compile the getStatsAndResolveSymlinks.c yourself and add it to the resources directory.")
         }
+        log.info("FRIEDRICH: file: {}", architectureStatFileName)
         final contentStream = CWSK8sExecutor.class.getResourceAsStream(architectureStatFileName)
         final content = contentStream.bytes.encodeBase64().toString()
         configMap[WOWK8sWrapperBuilder.statFileName] = content
