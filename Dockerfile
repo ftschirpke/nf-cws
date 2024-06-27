@@ -1,3 +1,3 @@
-FROM nextflow/nextflow:23.07.0-wow-local
+FROM nextflow-wow-dev
 
 COPY build/plugins /.nextflow/plugins
