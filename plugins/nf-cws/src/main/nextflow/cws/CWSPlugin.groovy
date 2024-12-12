@@ -14,6 +14,10 @@ class CWSPlugin extends BasePlugin {
 
     private static void registerTraceFields() {
         TraceRecord.FIELDS.putAll( [
+                infiles_time:                          'num',
+                outfiles_time:                         'num',
+                create_bash_wrapper_time:              'num',
+                create_request_time:                   'num',
                 submit_to_scheduler_time:              'num',
                 submit_to_k8s_time:                    'num',
                 scheduler_time_in_queue:               'num',
