@@ -7,7 +7,7 @@ import nextflow.executor.BashWrapperBuilder
 import nextflow.extension.GroupKey
 import nextflow.file.FileHolder
 import nextflow.k8s.K8sTaskHandler
-import nextflow.k8s.K8sWrapperBuilder
+import nextflow.BuildInfo
 import nextflow.processor.TaskRun
 import nextflow.trace.TraceRecord
 import org.codehaus.groovy.runtime.GStringImpl
@@ -25,6 +25,10 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
     private long submitToSchedulerTime = -1
 
     private long submitToK8sTime = -1
+
+    private String syntheticPodName = null
+
+    private long inputSize = -1
 
     private final CWSK8sExecutor executor
 
@@ -57,15 +61,16 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         if ( (k8sConfig as CWSK8sConfig)?.getScheduler() ){
             (pod.spec as Map).schedulerName = (k8sConfig as CWSK8sConfig).getScheduler().getName() + "-" + getRunName()
         }
+        syntheticPodName = pod.metadata.name
         return pod
     }
 
     @CompileDynamic
     private void extractValue(
-            List<Map<String,Object>> booleanInputs,
-            List<Map<String,Object>> numberInputs,
-            List<Map<String,String>> stringInputs,
-            List<Map<String,Object>> fileInputs,
+            List<Map<String, Object>> booleanInputs,
+            List<Map<String, Object>> numberInputs,
+            List<Map<String, String>> stringInputs,
+            List<Map<String, Object>> fileInputs,
             String key,
             Object input
     ){
@@ -85,6 +90,8 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
             booleanInputs.add( [ name : key, value : input] )
         } else if ( input instanceof Number ) {
             numberInputs.add( [ name : key, value : input] )
+        } else if ( input instanceof Character ) {
+            stringInputs.add( [ name : key, value : input as String] )
         } else if ( input instanceof String ) {
             stringInputs.add( [ name : key, value : input] )
         } else if ( input instanceof GStringImpl ) {
@@ -95,13 +102,13 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
-    private long calculateInputSize( List<Map<String,Object>> fileInputs ){
+    private static long calculateInputSize(List<Map<String,Object>> fileInputs ){
         return fileInputs
-                .parallelStream()
-                .mapToLong {
-                    final File file = new File(( it.value as Map<String,String>).storePath )
-                    return file.directory ? file.directorySize() : file.length()
-                }.sum()
+            .parallelStream()
+            .mapToLong {
+                final File file = new File(( it.value as Map<String,String>).storePath )
+                return file.directory ? file.directorySize() : file.length()
+            }.sum()
     }
 
     private Map registerTask(){
@@ -115,10 +122,10 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
             extractValue( booleanInputs, numberInputs, stringInputs, fileInputs, entry.getKey().name , entry.getValue() )
         }
 
+        inputSize = calculateInputSize( fileInputs )
 
-        inputSize = calculateInputSize(fileInputs)
         Map config = [
-                runName : "nf-${task.hash}",
+                runName : syntheticPodName,
                 inputs : [
                         booleanInputs : booleanInputs,
                         numberInputs  : numberInputs,
@@ -214,13 +221,17 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
             if( value == null )
                 continue
             switch( name ) {
-                case "scheduler_nodes_cost" :
+                case "scheduler_nodes_cost":
                     traceRecord.put( name, value )
                     break
-                case "scheduler_best_cost" :
+                case "scheduler_best_cost":
                     double val = parseDouble( value, file, name )
                     traceRecord.put( name, val )
                     break
+                case "input_size":
+                    traceRecord.put ( name, inputSize )
+                    break
+
                 default:
                     long val = parseLong( value, file, name )
                     traceRecord.put( name, val )
