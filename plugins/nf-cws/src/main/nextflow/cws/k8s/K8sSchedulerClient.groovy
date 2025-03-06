@@ -3,7 +3,6 @@ package nextflow.cws.k8s
 import groovy.util.logging.Slf4j
 import nextflow.cws.CWSConfig
 import nextflow.cws.SchedulerClient
-import nextflow.cws.k8s.client.CWSK8sClient
 import nextflow.exception.NodeTerminationException
 import nextflow.k8s.K8sConfig
 import nextflow.k8s.client.K8sClient
@@ -24,6 +23,7 @@ class K8sSchedulerClient extends SchedulerClient {
     private final String namespace
     private final Collection<PodHostMount> hostMounts
     private final Collection<PodVolumeClaim> volumeClaims
+    private String ip
 
     K8sSchedulerClient(
             CWSConfig config,
@@ -42,6 +42,10 @@ class K8sSchedulerClient extends SchedulerClient {
         this.k8sConfig = k8sConfig
         this.schedulerConfig = schedulerConfig
         this.namespace = namespace ?: 'default'
+    }
+    
+    protected String getDNS(){
+        return super.getDNS() ?: "http://${ip}:${schedulerConfig.getPort()}/v1"
     }
 
     protected String getDNS(){

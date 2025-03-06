@@ -3,12 +3,12 @@ package nextflow.cws.k8s
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.transform.PackageScope
-import nextflow.cws.k8s.model.CWSPodOptions
 import nextflow.exception.AbortOperationException
 import nextflow.k8s.K8sConfig
 import nextflow.k8s.client.K8sClient
 import nextflow.k8s.model.PodHostMount
 import nextflow.k8s.model.PodNodeSelector
+import nextflow.k8s.model.PodOptions
 
 import java.nio.file.Path
 import java.util.stream.Collectors
@@ -16,7 +16,6 @@ import java.util.stream.Collectors
 class CWSK8sConfig extends K8sConfig {
 
     private Map<String,Object> target
-    private CWSPodOptions podOptions
 
     CWSK8sConfig(Map<String, Object> config) {
         super(config)
@@ -24,12 +23,8 @@ class CWSK8sConfig extends K8sConfig {
         if (getLocalPath()) {
             final name = getLocalPath()
             final mount = getLocalStorageMountPath()
-            this.podOptions.hostMounts.add(new PodHostMount(name, mount))
+            getPodOptions().mountHostPaths.add(new PodHostMount(name, mount))
         }
-    }
-
-    CWSPodOptions getPodOptions() {
-        return podOptions;
     }
 
     K8sScheduler getScheduler(){
@@ -53,11 +48,11 @@ class CWSK8sConfig extends K8sConfig {
     }
 
     Collection<String> getLocalClaimPaths() {
-        podOptions.hostMounts.collect { it.mountPath }
+        getPodOptions().mountHostPaths.collect { it.mountPath }
     }
 
     String findLocalVolumeClaimByPath(String path) {
-        def result = podOptions.hostMounts.find { path.startsWith(it.mountPath) }
+        def result = getPodOptions().mountHostPaths.find { path.startsWith(it.mountPath) }
         return result ? result.hostPath : null
     }
 
