@@ -7,7 +7,6 @@ import nextflow.executor.BashWrapperBuilder
 import nextflow.extension.GroupKey
 import nextflow.file.FileHolder
 import nextflow.k8s.K8sTaskHandler
-import nextflow.BuildInfo
 import nextflow.processor.TaskRun
 import nextflow.trace.TraceRecord
 import org.codehaus.groovy.runtime.GStringImpl
@@ -36,8 +35,6 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
 
     private String memoryAdapted = null
 
-    private long inputSize = -1
-
     private boolean failedOOM = false
 
     CWSK8sTaskHandler( TaskRun task, CWSK8sExecutor executor ) {
@@ -53,7 +50,9 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         if ( cwsK8sConfig?.locationAwareScheduling() ) {
             return new WOWK8sWrapperBuilder( task , cwsK8sConfig.getStorage() )
         }
-        return super.createBashWrapper(task)
+        return fusionEnabled()
+                ? fusionLauncher()
+                : new CWSK8sWrapperBuilder( task, executor.getCWSConfig().memoryPredictor as boolean )
     }
 
     protected Map newSubmitRequest0(TaskRun task, String imageName) {
@@ -141,15 +140,8 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
                 workDir : task.getWorkDirStr(),
                 repetition : task.failCount,
                 inputSize : inputSize
-                outLabel : task.config.getOutLabel()?.toMap()
         ]
         return schedulerClient.registerTask( config, task.id.intValue() )
-    }
-
-    protected BashWrapperBuilder createBashWrapper(TaskRun task) {
-        return fusionEnabled()
-                ? fusionLauncher()
-                : new CWSK8sWrapperBuilder( task, executor.getCWSConfig().memoryPredictor as boolean )
     }
 
     /**

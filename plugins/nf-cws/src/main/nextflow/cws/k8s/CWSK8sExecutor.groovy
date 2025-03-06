@@ -8,8 +8,6 @@ import groovy.util.logging.Slf4j
 import nextflow.cws.CWSConfig
 import nextflow.cws.CWSSchedulerBatch
 import nextflow.cws.SchedulerClient
-import nextflow.cws.k8s.client.CWSK8sClient
-import nextflow.cws.k8s.model.CWSPodOptions
 import nextflow.cws.k8s.model.PodMountConfigWithMode
 import nextflow.cws.processor.CWSTaskPollingMonitor
 import nextflow.k8s.K8sConfig
@@ -17,6 +15,7 @@ import nextflow.k8s.K8sExecutor
 import nextflow.k8s.client.K8sClient
 import nextflow.k8s.client.K8sResponseException
 import nextflow.k8s.model.PodHostMount
+import nextflow.k8s.model.PodOptions
 import nextflow.k8s.model.PodVolumeClaim
 import nextflow.processor.TaskHandler
 import nextflow.processor.TaskMonitor
@@ -112,7 +111,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         }
 
         if( k8sSchedulerConfig ) {
-            final CWSPodOptions podOptions = cwsK8sConfig.getPodOptions()
+            final PodOptions podOptions = cwsK8sConfig.getPodOptions()
             schedulerClient = new K8sSchedulerClient(
                     cwsConfig,
                     k8sSchedulerConfig,
@@ -121,7 +120,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
                     session.runName,
                     client,
                     podOptions.getVolumeClaims(),
-                    podOptions.getHostMounts()
+                    podOptions.getMountHostPaths()
             )
             Boolean traceEnabled = session.config.navigate('trace.enabled') as Boolean
             CWSK8sConfig.Storage storage = cwsK8sConfig.getStorage()
@@ -179,9 +178,9 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         String architectureStatFileName
         final String architecture = System.getProperty("os.arch");
         if (architecture == "amd64" || architecture == "x86_64") {
-            architectureStatFileName = "getStatsAndResolveSymlinks_linux_x86"
+            architectureStatFileName = "/nf-cws/getStatsAndResolveSymlinks_linux_x86"
         } else if (architecture == "aarch64" || architecture == "arm64") {
-            architectureStatFileName = "getStatsAndResolveSymlinks_linux_aarch64"
+            architectureStatFileName = "/nf-cws/getStatsAndResolveSymlinks_linux_aarch64"
         } else {
             throw new RuntimeException("The ${architecture} architecture is by default not supported for WOW." +
                     "You may compile the getStatsAndResolveSymlinks.c yourself and add it to the resources directory.")
@@ -219,13 +218,13 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
     private void createDaemonSet(){
 
         final K8sConfig k8sConfig = getK8sConfig()
-        final CWSPodOptions podOptions = (k8sConfig as CWSK8sConfig).getPodOptions()
+        final PodOptions podOptions = (k8sConfig as CWSK8sConfig).getPodOptions()
         final mounts = []
         final volumes = []
         int volume = 1
 
         // host mounts
-        for( PodHostMount entry : podOptions.hostMounts ) {
+        for( PodHostMount entry : podOptions.mountHostPaths ) {
             final name = 'vol-' + volume++
             mounts << [name: name, mountPath: entry.mountPath]
             volumes << [name: name, hostPath: [path: entry.hostPath]]
