@@ -147,6 +147,7 @@ class SchedulerClient {
         HttpURLConnection put = new URL("${getDNS()}/scheduler/$runName/DAG/vertices").openConnection() as HttpURLConnection
         put.setRequestMethod( "POST" )
         String message = JsonOutput.toJson( verticesToSubmit )
+        log.debug("submitVertices - RUN NAME: $runName, MESSAGE: $message")
         put.setDoOutput(true)
         put.setRequestProperty("Content-Type", "application/json")
         put.getOutputStream().write(message.getBytes("UTF-8"))

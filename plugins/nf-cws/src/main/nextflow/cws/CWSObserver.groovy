@@ -20,7 +20,9 @@ class CWSObserver implements TraceObserver {
     @Override
     void onFlowBegin() {
         dag.normalize()
+        log.info("onFlowBegin")
         CWSSession.INSTANCE.getSchedulerClients().each { schedulerClient ->
+            log.info("Submitting DAG:\n$dag.vertices\nand\n$dag.edges")
             schedulerClient.submitVertices( dag.vertices )
             schedulerClient.submitEdges( dag.edges )
         }
