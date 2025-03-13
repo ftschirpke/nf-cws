@@ -55,11 +55,14 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
                 : new CWSK8sWrapperBuilder( task, executor.getCWSConfig().memoryPredictor as boolean )
     }
 
+    @Override
     protected Map newSubmitRequest0(TaskRun task, String imageName) {
+        log.info("Creating pod from $task $imageName")
         Map<String, Object> pod = super.newSubmitRequest0(task, imageName)
         if ( (k8sConfig as CWSK8sConfig)?.getScheduler() ){
             (pod.spec as Map).schedulerName = (k8sConfig as CWSK8sConfig).getScheduler().getName() + "-" + getRunName()
         }
+        log.info("Created pod $pod")
         syntheticPodName = pod.metadata.name
         return pod
     }
