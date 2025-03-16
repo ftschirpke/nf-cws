@@ -170,7 +170,7 @@ class CWSK8sConfig extends K8sConfig {
         }
 
         String getImageName() {
-            target.imageName ?: 'fondahub/vsftpd:latest'
+            target.imageName ?: 'commonworkflowscheduler/ftpdaemon:v1.0'
         }
 
         String getCmd() {
