@@ -21,6 +21,40 @@ class CWSK8sClient extends K8sClient {
         super(config)
     }
 
+    static private void trace(String method, String path, String text) {
+        log.trace "[CWS-K8s] API response $method $path \n${prettyPrint(text).indent()}"
+    }
+
+    /**
+     * Create a pod
+     *
+     * See
+     *  https://v1-8.docs.kubernetes.io/docs/api-reference/v1.8/#create-55
+     *  https://v1-8.docs.kubernetes.io/docs/api-reference/v1.8/#pod-v1-core
+     *
+     * @param spec
+     * @return
+     */
+    K8sResponseJson podCreate(String req, namespace = config.namespace) {
+        assert req
+        final action = "/api/v1/namespaces/$namespace/pods"
+        final resp = post(action, req)
+        trace('POST', action, resp.text)
+        return new K8sResponseJson(resp.text)
+    }
+
+    K8sResponseJson podCreate(Map req, Path saveYamlPath=null, namespace = config.namespace) {
+
+        if( saveYamlPath ) try {
+            saveYamlPath.text = new Yaml().dump(req).toString()
+        }
+        catch( Exception e ) {
+            log.debug "WARN: unable to save request yaml -- cause: ${e.message ?: e}"
+        }
+
+        podCreate(JsonOutput.toJson(req), namespace)
+    }
+
     K8sResponseJson daemonSetCreate(Map req, Path saveYamlPath=null) {
         if (saveYamlPath) {
             try {

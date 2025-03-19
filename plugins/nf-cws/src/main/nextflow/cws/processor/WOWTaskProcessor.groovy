@@ -26,7 +26,6 @@ class WOWTaskProcessor extends TaskProcessor {
     }
 
     @PackageScope
-    @Override
     List<Path> fetchResultFiles( FileOutParam param, String namePattern, Path workDir ) {
         assert namePattern
         assert workDir
