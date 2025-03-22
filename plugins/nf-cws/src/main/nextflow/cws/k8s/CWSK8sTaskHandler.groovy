@@ -25,10 +25,6 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
 
     private long submitToK8sTime = -1
 
-    private String syntheticPodName = null
-
-    private long inputSize = -1
-
     private final CWSK8sExecutor executor
 
     private CWSK8sClient client
