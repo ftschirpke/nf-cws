@@ -63,6 +63,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
             return precomputedSubmitRequest
         }
         super.newSubmitRequest(task)
+    }
 
     @Override
     protected BashWrapperBuilder createBashWrapper(TaskRun task) {
