@@ -101,7 +101,13 @@ class LocalPath implements Path {
     Map download(){
         log.info("FRIEDRICH download")
         final String absolutePath = path.toAbsolutePath().toString()
-        final def location = getLocation( absolutePath )
+        def location
+        def trial = 0
+        do {
+            if ( trial > 0 ) Thread.sleep( trial * 1000 )
+            location = getLocation( absolutePath )
+            trial++
+        } while ( (location.node == null || location.daemon == null) && trial < 5 )
         synchronized ( this ) {
             if ( this.wasDownloaded || location.sameAsEngine ) {
                 log.trace("No download")
