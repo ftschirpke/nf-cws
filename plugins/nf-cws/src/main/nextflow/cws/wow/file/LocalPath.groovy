@@ -14,7 +14,7 @@ class LocalPath implements Path {
     private transient final LocalFileWalker.FileAttributes attributes
     private static transient K8sSchedulerClient client = null
     private boolean wasDownloaded = false
-    private Path workDir
+    protected Path workDir
     private boolean createdSymlinks = false
     private transient final Object createSymlinkHelper = new Object()
 
@@ -274,7 +274,8 @@ class LocalPath implements Path {
     @Override
     Path relativize(Path other) {
         if ( other instanceof LocalPath ){
-            return toLocalPath( path.relativize( ((LocalPath) other).path ) )
+            def localPath = (LocalPath) other
+            return toLocalPath( path.relativize( localPath.path), (LocalFileWalker.FileAttributes) localPath.attributes, localPath.workDir )
         }
         path.relativize( other )
     }

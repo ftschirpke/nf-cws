@@ -21,7 +21,7 @@ class WorkdirPath extends OfflineLocalPath {
             if ( this.path == otherPath ) {
                 return Path.of("")
             }
-            return workdirHelper.relativeToWorkdir( otherPath )
+            return workdirHelper.relativeToWorkdir( (LocalPath) other )
         }
         return this.path.relativize( other )
     }
