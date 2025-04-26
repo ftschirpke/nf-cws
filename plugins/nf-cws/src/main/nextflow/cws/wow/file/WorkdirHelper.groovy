@@ -38,6 +38,10 @@ class WorkdirHelper {
         rootPath.relativize( path )
     }
 
+    int getNameCount() {
+        rootPath.getNameCount()
+    }
+
     DirectoryStream<Path> getDirectoryStream(Path path) {
         if( validated ) {
             throw new IllegalStateException("WorkdirHelper validated")

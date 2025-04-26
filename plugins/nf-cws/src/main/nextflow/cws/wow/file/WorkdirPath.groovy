@@ -37,4 +37,8 @@ class WorkdirPath extends OfflineLocalPath {
         workdirHelper.get( file ) ?: file
     }
 
+    @Override
+    int getNameCount() {
+        return workdirHelper.getNameCount()
+    }
 }
