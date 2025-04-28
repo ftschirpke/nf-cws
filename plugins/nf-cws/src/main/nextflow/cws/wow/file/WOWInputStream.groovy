@@ -50,10 +50,11 @@ class WOWInputStream extends InputStream {
     @Override
     int read() throws IOException {
         int b = inner.read()
-        temporaryFileStream.write(b)
         if (b == -1) {
             fullyRead = true
             checkTemporaryFileTransferal()
+        } else {
+            temporaryFileStream.write(b)
         }
         return b
     }
