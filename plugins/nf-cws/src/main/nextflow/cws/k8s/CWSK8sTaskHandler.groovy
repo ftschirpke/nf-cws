@@ -177,10 +177,15 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
+    boolean schedulerPostProcessingHasFinished(){
+        Map state = schedulerClient.getTaskState(task.id.intValue())
+        return (!state.state) ?: ["FINISHED", "FINISHED_WITH_ERROR", "INIT_WITH_ERRORS", "DELETED"].contains( state.state.toString() )
+    }
+
     @Override
     boolean checkIfCompleted() {
         Map state = getState()
-        if( !state || !state.terminated ) {
+        if( !state || !state.terminated && ( (k8sConfig as CWSK8sConfig)?.locationAwareScheduling() && !schedulerPostProcessingHasFinished() ) ) {
             return false
         }
         if( executor.getCWSConfig().memoryPredictor ) {
