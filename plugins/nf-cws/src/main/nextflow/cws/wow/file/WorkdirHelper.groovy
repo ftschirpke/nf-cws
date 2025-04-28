@@ -17,6 +17,10 @@ class WorkdirHelper {
         this.paths = paths
     }
 
+    private WorkdirHelper() {
+        this(null, null)
+    }
+
     void validate() {
         validated = true
         // Garbage collector might remove unused paths

@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes
 
 @Slf4j
 class LocalPath implements Path {
+class LocalPath implements Path, Serializable {
 
     protected final Path path
     private transient final LocalFileWalker.FileAttributes attributes
