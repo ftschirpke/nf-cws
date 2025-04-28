@@ -1,8 +1,10 @@
 package nextflow.cws.wow.file
 
+import groovy.transform.CompileStatic
 import nextflow.cws.SchedulerClient
 import sun.net.ftp.FtpClient
 
+@CompileStatic
 class WOWInputStream extends InputStream {
 
     private InputStream inner

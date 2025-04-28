@@ -1,5 +1,6 @@
 package nextflow.cws.wow.file
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.cws.k8s.K8sSchedulerClient
 import sun.net.ftp.FtpClient
@@ -8,7 +9,7 @@ import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
 
 @Slf4j
-class LocalPath implements Path {
+@CompileStatic
 class LocalPath implements Path, Serializable {
 
     protected final Path path
@@ -140,11 +141,10 @@ class LocalPath implements Path, Serializable {
     }
 
     <T> T asType( Class<T> c ) {
-        log.info("FRIEDRICH asType")
-        if ( c.isAssignableFrom( getClass() ) ) return this
-        if ( c.isAssignableFrom( LocalPath.class ) ) return toFile()
-        if ( c == String.class ) return toString()
-        log.info("Invoke method asType $c on $this")
+        if ( c.isAssignableFrom( getClass() ) ) return (T) this
+        if ( c.isAssignableFrom( LocalPath.class ) ) return (T) toFile()
+        if ( c == String.class ) return (T) toString()
+        log.info("Invoke method asType $c on ${this.class}")
         return super.asType( c )
     }
 
@@ -157,10 +157,10 @@ class LocalPath implements Path, Serializable {
         Object result = path.invokeMethod(name, args)
         if( lastModified != file.lastModified() ){
             //Update location in scheduler (overwrite all others)
-            client.addFileLocation( downloadResult.location.path.toString() , file.size(), file.lastModified(), downloadResult.location.locationWrapperID as long, true )
+            client.addFileLocation( (downloadResult.location as Map).path.toString() , file.size(), file.lastModified(), (downloadResult.location as Map).locationWrapperID as long, true )
         } else if ( downloadResult.wasDownloaded ){
             //Add location to scheduler
-            client.addFileLocation( downloadResult.location.path.toString() , file.size(), file.lastModified(), downloadResult.location.locationWrapperID as long, false )
+            client.addFileLocation( (downloadResult.location as Map).path.toString() , file.size(), file.lastModified(), (downloadResult.location as Map).locationWrapperID as long, false )
         }
         return result
     }

@@ -1,11 +1,13 @@
 package nextflow.cws.wow.file
 
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 
 import java.nio.file.DirectoryStream
 import java.nio.file.Path
 
 @Slf4j
+@CompileStatic
 class WorkdirHelper {
 
     private final Map<Path, LocalPath> paths
@@ -61,7 +63,7 @@ class WorkdirHelper {
                     def result = toCompareAgainst.parent == cp.getInner()
                     return result
                 }.collect {
-                    it.value
+                    (Path) it.value
                 }
                 return all.iterator()
             }
