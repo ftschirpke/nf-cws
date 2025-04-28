@@ -56,6 +56,7 @@ class LocalPath implements Path {
                 FtpClient ftpClient = FtpClient.create(daemon)
                 ftpClient.login("root", "password".toCharArray() )
                 ftpClient.enablePassiveMode( true )
+                ftpClient.setBinaryType()
                 return ftpClient
             } catch ( IOException e ) {
                 if ( trial > 5 ) throw e
