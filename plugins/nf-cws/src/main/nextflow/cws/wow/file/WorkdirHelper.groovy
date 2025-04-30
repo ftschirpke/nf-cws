@@ -25,8 +25,6 @@ class WorkdirHelper {
 
     void validate() {
         validated = true
-        // Garbage collector might remove unused paths
-        paths.clear()
     }
 
     boolean isValidated() {
