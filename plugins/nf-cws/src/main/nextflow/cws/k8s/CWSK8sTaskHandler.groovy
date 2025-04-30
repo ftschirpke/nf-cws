@@ -187,7 +187,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
     @Override
     boolean checkIfCompleted() {
         Map state = getState()
-        if( !state || !state.terminated && ( (k8sConfig as CWSK8sConfig)?.locationAwareScheduling() && !schedulerPostProcessingHasFinished() ) ) {
+        if( !state || !state.terminated || ( (k8sConfig as CWSK8sConfig)?.locationAwareScheduling() && !schedulerPostProcessingHasFinished() ) ) {
             return false
         }
         if( executor.getCWSConfig().memoryPredictor ) {
