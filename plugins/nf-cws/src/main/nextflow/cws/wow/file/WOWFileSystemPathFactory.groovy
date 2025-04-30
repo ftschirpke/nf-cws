@@ -5,7 +5,6 @@ import nextflow.file.FileSystemPathFactory
 
 import java.nio.file.Path
 
-@Slf4j
 class WOWFileSystemPathFactory extends FileSystemPathFactory {
 
 
@@ -20,7 +19,10 @@ class WOWFileSystemPathFactory extends FileSystemPathFactory {
 
     @Override
     protected String toUriString(Path path) {
-        return path.toUriString()
+        if ( path instanceof LocalPath ) {
+            return path.toUriString()
+        }
+        return null
     }
 
     @Override
