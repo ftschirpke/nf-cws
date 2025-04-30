@@ -1,6 +1,5 @@
 package nextflow.cws.wow.file
 
-import groovy.util.logging.Slf4j
 import nextflow.file.FileSystemPathFactory
 
 import java.nio.file.Path
