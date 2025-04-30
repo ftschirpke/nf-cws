@@ -169,8 +169,7 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
 
     @Override
     void download(Path source, Path target, CopyOption... copyOptions) throws IOException {
-        log.warn("Work in progress: Implementation for downloading functionality may not be correct or complete in ${getScheme().toUpperCase()} file system provider")
-        // do nothing, as data downloading is handled by the WOW scheduler
+        log.warn( "Not Implemented: Download from ${source} (${source.class.name}) to ${target} (${target.class.name}) with options ${copyOptions}" )
     }
 
     @Override

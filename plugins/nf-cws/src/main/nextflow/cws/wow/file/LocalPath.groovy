@@ -287,6 +287,10 @@ class LocalPath implements Path, Serializable {
         return getFileSystem().provider().getScheme() + "://" + path.toAbsolutePath() as URI
     }
 
+    String toUriString() {
+        return getFileSystem().provider().getScheme() + ":/" + path.toAbsolutePath()
+    }
+
     Path toAbsolutePath(){
         toLocalPath( path.toAbsolutePath() )
     }
