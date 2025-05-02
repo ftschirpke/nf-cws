@@ -228,14 +228,15 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
             if( value == null )
                 continue
             switch( name ) {
-                case "scheduler_nodes_cost" :
+                case 'scheduler_nodes_cost' :
+                case 'scheduler_time_delta_phase_three' :
                     traceRecord.put( name, value )
                     break
-                case "scheduler_best_cost" :
+                case 'scheduler_best_cost' :
                     double val = parseDouble( value, file, name )
                     traceRecord.put( name, val )
                     break
-                case "input_size" :
+                case 'input_size' :
                     traceRecord.put( name, inputSize )
                     break
                 default:
