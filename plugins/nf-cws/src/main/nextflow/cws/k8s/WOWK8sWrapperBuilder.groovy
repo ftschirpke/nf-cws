@@ -16,15 +16,16 @@ import java.nio.file.Path
  */
 @CompileStatic
 @Slf4j
-class WOWK8sWrapperBuilder extends K8sWrapperBuilder {
+class WOWK8sWrapperBuilder extends CWSK8sWrapperBuilder {
 
     CWSK8sConfig.Storage storage
     Path localWorkDir
 
     static String statFileName = "getStatsAndSymlinks"
 
-    WOWK8sWrapperBuilder(TaskRun task, CWSK8sConfig.Storage storage) {
-        this(task)
+    WOWK8sWrapperBuilder(TaskRun task, CWSK8sConfig.Storage storage, boolean memoryPredictorEnabled) {
+        super(task, memoryPredictorEnabled)
+        this.headerScript = "NXF_CHDIR=${Escape.path(task.workDir)}"
         this.storage = storage
         if( storage ){
             switch (storage.getCopyStrategy().toLowerCase()) {
@@ -46,10 +47,6 @@ class WOWK8sWrapperBuilder extends K8sWrapperBuilder {
         }
     }
 
-    WOWK8sWrapperBuilder(TaskRun task) {
-        super(task)
-        this.headerScript = "NXF_CHDIR=${Escape.path(task.workDir)}"
-    }
     /**
      * only for testing purpose -- do not use
      */

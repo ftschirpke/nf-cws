@@ -162,7 +162,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
     protected BashWrapperBuilder createBashWrapper(TaskRun task) {
         CWSK8sConfig cwsK8sConfig = k8sConfig as CWSK8sConfig
         if ( cwsK8sConfig?.locationAwareScheduling() ) {
-            return new WOWK8sWrapperBuilder( task , cwsK8sConfig.getStorage() )
+            return new WOWK8sWrapperBuilder( task , cwsK8sConfig.getStorage(), executor.getCWSConfig().memoryPredictor as boolean )
         }
         return fusionEnabled()
                 ? fusionLauncher()
