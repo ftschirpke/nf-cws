@@ -219,7 +219,12 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
 
     @Override
     void download(Path source, Path target, CopyOption... copyOptions) throws IOException {
-        log.warn( "Not Implemented: Download from ${source} (${source.class.name}) to ${target} (${target.class.name}) with options ${copyOptions}" )
+        try {
+            schedulerClient.publish( source, target, "COPY" )
+        } catch ( Exception e ) {
+            log.error("Error downloading file from ${source} to ${target}", e)
+            throw e
+        }
     }
 
     @Override

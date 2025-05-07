@@ -159,6 +159,16 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
     @Override
     void shutdown() {
         final CWSK8sConfig.K8sScheduler schedulerConfig = (k8sConfig as CWSK8sConfig).getScheduler()
+
+        int remaining
+        do {
+            remaining = schedulerClient.getRemainingToPublish()
+            if( remaining > 0 ) {
+                log.info "Waiting for $remaining files to be published"
+                sleep( 1000 )
+            }
+        } while( remaining > 0 )
+
         if( schedulerConfig ) {
             try{
                 schedulerClient.closeScheduler()
