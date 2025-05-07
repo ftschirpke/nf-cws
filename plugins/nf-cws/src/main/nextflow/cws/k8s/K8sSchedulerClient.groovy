@@ -4,7 +4,6 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.cws.CWSConfig
 import nextflow.cws.SchedulerClient
-import nextflow.cws.wow.file.LocalPath
 import nextflow.exception.NodeTerminationException
 import nextflow.k8s.K8sConfig
 import nextflow.k8s.client.K8sResponseException
@@ -50,7 +49,6 @@ class K8sSchedulerClient extends SchedulerClient {
         this.k8sConfig = k8sConfig
         this.schedulerConfig = schedulerConfig
         this.namespace = namespace ?: 'default'
-        LocalPath.setClient(this)
     }
 
     protected String getDNS(){

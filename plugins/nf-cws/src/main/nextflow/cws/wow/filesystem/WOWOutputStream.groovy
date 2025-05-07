@@ -28,7 +28,7 @@ class WOWOutputStream extends OutputStream {
     @Override
     void close() throws IOException {
         inner.close()
-        Map location = path.getLocation()
+        Map location = WOWFileSystemProvider.INSTANCE.getLocation( path )
         File file = path.getInner().toFile()
         client.addFileLocation(path.toString(), file.size(), file.lastModified(), location.locationWrapperID as long, true)
     }

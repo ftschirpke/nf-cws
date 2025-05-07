@@ -1,6 +1,7 @@
 package nextflow.cws.wow.filesystem
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import groovy.util.logging.Slf4j
 import nextflow.cws.SchedulerClient
 import nextflow.cws.wow.file.LocalPath
@@ -23,11 +24,61 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
 
     protected SchedulerClient schedulerClient = null // TODO: support multiple clients
 
+    private transient final Object createSymlinkHelper = new Object()
+
     void registerSchedulerClient(SchedulerClient schedulerClient) throws UnsupportedOperationException {
         if (this.schedulerClient != null) {
             throw new UnsupportedOperationException("WOW file system does not support multiple scheduler clients")
         }
         this.schedulerClient = schedulerClient
+    }
+
+    private FtpClient getConnection(final String node, String daemon ){
+        int trial = 0
+        while ( true ) {
+            try {
+                FtpClient ftpClient = FtpClient.create(daemon)
+                ftpClient.login("root", "password".toCharArray() )
+                ftpClient.enablePassiveMode( true )
+                ftpClient.setBinaryType()
+                return ftpClient
+            } catch ( IOException e ) {
+                if ( trial > 5 ) throw e
+                log.error("Cannot create FTP client: $daemon on $node", e)
+                sleep(Math.pow(2, trial++) as long)
+                daemon = schedulerClient.getDaemonOnNode(node)
+            }
+        }
+    }
+
+    @PackageScope Map getLocation(LocalPath path ){
+        String absolutePath = path.toAbsolutePath().toString()
+        Map response = schedulerClient.getFileLocation( absolutePath )
+        synchronized ( createSymlinkHelper ) {
+            if ( !path.createdSymlinks ) {
+                for (Map link : (response.symlinks as List<Map>)) {
+                    Path src = link.src as Path
+                    Path dst = link.dst as Path
+                    if (Files.exists(src, LinkOption.NOFOLLOW_LINKS)) {
+                        try {
+                            if (src.isDirectory()) src.deleteDir()
+                            else Files.delete(src)
+                        } catch (Exception ignored) {
+                            log.warn("Unable to delete " + src)
+                        }
+                    } else {
+                        src.parent.toFile().mkdirs()
+                    }
+                    try {
+                        Files.createSymbolicLink(src, dst)
+                    } catch (Exception ignored) {
+                        log.warn("Unable to create symlink: " + src + " -> " + dst)
+                    }
+                }
+                path.createdSymlinks = true
+            }
+        }
+        response
     }
 
     @Override
@@ -36,13 +87,13 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
             throw new RuntimeException("WOW file system has no registered scheduler client")
         }
         assert path instanceof LocalPath
-        Map location = path.getLocation()
+        Map location = getLocation( path )
 
         if ( location?.sameAsEngine ) {
             return Files.newInputStream(path.getInner(), options)
         }
 
-        FtpClient ftpClient = LocalPath.getConnection(location.node.toString(), location.daemon.toString())
+        FtpClient ftpClient = getConnection(location.node.toString(), location.daemon.toString())
         InputStream is = ftpClient.getFileStream(location.path.toString())
         return new WOWInputStream(is, schedulerClient, path, ftpClient)
     }

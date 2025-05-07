@@ -41,7 +41,7 @@ class WOWInputStream extends InputStream {
         temporaryFile.moveTo(file)
         transferredTemporaryFile = true
 
-        Map location = path.getLocation()
+        Map location = WOWFileSystemProvider.INSTANCE.getLocation( path )
         schedulerClient.addFileLocation(path.toString(), file.size(), file.lastModified(), location.locationWrapperID as long, false)
     }
 

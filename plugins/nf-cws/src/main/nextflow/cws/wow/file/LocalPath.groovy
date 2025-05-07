@@ -2,9 +2,7 @@ package nextflow.cws.wow.file
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import nextflow.cws.k8s.K8sSchedulerClient
 import nextflow.cws.wow.filesystem.WOWFileSystem
-import sun.net.ftp.FtpClient
 
 import java.nio.file.*
 
@@ -16,13 +14,9 @@ class LocalPath implements Path, Serializable {
 
     private transient final WOWFileAttributes attributes
 
-    private static transient K8sSchedulerClient client = null
+    boolean createdSymlinks = false
 
     protected Path workDir
-
-    private boolean createdSymlinks = false
-
-    private transient final Object createSymlinkHelper = new Object()
 
     protected LocalPath(Path path, WOWFileAttributes attributes, Path workDir ) {
         this.path = path
@@ -37,7 +31,7 @@ class LocalPath implements Path, Serializable {
     }
 
     Path getInner() {
-        return path
+        path
     }
 
     LocalPath toLocalPath( Path path, WOWFileAttributes attributes = null ){
@@ -46,60 +40,6 @@ class LocalPath implements Path, Serializable {
 
     static LocalPath toLocalPath( Path path, WOWFileAttributes attributes, Path workDir ){
         ( path instanceof LocalPath ) ? path as LocalPath : new LocalPath( path, attributes, workDir )
-    }
-
-    static void setClient( K8sSchedulerClient client ){
-        if ( !this.client ) this.client = client
-        else throw new IllegalStateException("Client was already set.")
-    }
-
-    static FtpClient getConnection(final String node, String daemon ){
-        int trial = 0
-        while ( true ) {
-            try {
-                FtpClient ftpClient = FtpClient.create(daemon)
-                ftpClient.login("root", "password".toCharArray() )
-                ftpClient.enablePassiveMode( true )
-                ftpClient.setBinaryType()
-                return ftpClient
-            } catch ( IOException e ) {
-                if ( trial > 5 ) throw e
-                log.error("Cannot create FTP client: $daemon on $node", e)
-                sleep(Math.pow(2, trial++) as long)
-                daemon = client.getDaemonOnNode(node)
-            }
-        }
-    }
-
-    Map getLocation() { getLocation(path.toAbsolutePath().toString()) }
-
-    Map getLocation( String absolutePath ){
-        Map response = client.getFileLocation( absolutePath )
-        synchronized ( createSymlinkHelper ) {
-            if ( !createdSymlinks ) {
-                for ( Map link : (response.symlinks as List<Map>)) {
-                    Path src = link.src as Path
-                    Path dst = link.dst as Path
-                    if (Files.exists(src, LinkOption.NOFOLLOW_LINKS)) {
-                        try {
-                            if (src.isDirectory()) src.deleteDir()
-                            else Files.delete(src)
-                        } catch ( Exception ignored){
-                            log.warn( "Unable to delete " + src )
-                        }
-                    } else {
-                        src.parent.toFile().mkdirs()
-                    }
-                    try{
-                        Files.createSymbolicLink(src, dst)
-                    } catch ( Exception ignored){
-                        log.warn( "Unable to create symlink: "  + src + " -> " + dst )
-                    }
-                }
-                createdSymlinks = true
-            }
-        }
-        response
     }
 
     <T> T asType( Class<T> c ) {
@@ -229,11 +169,11 @@ class LocalPath implements Path, Serializable {
 
     @Override
     URI toUri() {
-        return getFileSystem().provider().getScheme() + "://" + path.toAbsolutePath() as URI
+        getFileSystem().provider().getScheme() + "://" + path.toAbsolutePath() as URI
     }
 
     String toUriString() {
-        return getFileSystem().provider().getScheme() + ":/" + path.toAbsolutePath()
+        getFileSystem().provider().getScheme() + ":/" + path.toAbsolutePath()
     }
 
     Path toAbsolutePath(){
@@ -290,7 +230,7 @@ class LocalPath implements Path, Serializable {
 
     @Override
     int hashCode() {
-        return path.hashCode() * 2 + 1
+        path.hashCode() * 2 + 1
     }
 
 }
