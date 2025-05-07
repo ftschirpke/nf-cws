@@ -75,10 +75,8 @@ class CWSTaskPollingMonitor extends TaskPollingMonitor {
                     def mode = PublishDir.create(params).getMode()
                     // We only support COPY and MOVE, if the user uses a different mode, we set it to COPY
                     if ( !(mode in [ PublishDir.Mode.COPY, PublishDir.Mode.MOVE]) ) {
-                        log.warn "PublishDir: ${params} - Unsupported mode ${mode}, setting to COPY"
                         params.mode = PublishDir.Mode.COPY
                     }
-                    log.info( "PublishDir: ${params}" )
                 }
             }
         }

@@ -257,7 +257,6 @@ class SchedulerClient {
                 'mode'        : mode.toUpperCase(),
         ]
         String message = JsonOutput.toJson( data )
-        log.info( "Data to publish: $message" )
         get.setRequestProperty("Content-Type", "application/json")
         get.getOutputStream().write(message.getBytes("UTF-8"))
         int responseCode = get.getResponseCode()
