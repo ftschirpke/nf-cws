@@ -84,7 +84,7 @@ class LocalFileWalker {
             }
             this.link = !data[ REAL_PATH ].isEmpty()
             this.size = data[ SIZE ] as Long
-            this.fileType = data[ FILE_TYPE ]
+            String fileType = data[ FILE_TYPE ]
             this.accessDate = DateParser.fileTimeFromString(data[ ACCESS_DATE ])
             this.modificationDate = DateParser.fileTimeFromString(data[ MODIFICATION_DATE ])
             this.creationDate = DateParser.fileTimeFromString(data[ CREATION_DATE ]) ?: this.modificationDate
@@ -93,6 +93,7 @@ class LocalFileWalker {
                 this.fileType = fileType.substring( 10 )
             } else {
                 this.local = true
+                this.fileType = fileType
             }
             this.directory = fileType == 'directory'
             if ( !directory && !fileType.contains( 'file' ) ){
