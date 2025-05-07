@@ -68,4 +68,5 @@ class WOWInputStream extends InputStream {
         ftpClient.close()
         checkTemporaryFileTransferal()
     }
+
 }

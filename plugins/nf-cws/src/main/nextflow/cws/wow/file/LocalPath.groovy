@@ -13,10 +13,15 @@ import java.nio.file.attribute.BasicFileAttributes
 class LocalPath implements Path, Serializable {
 
     protected final Path path
+
     private transient final LocalFileWalker.FileAttributes attributes
+
     private static transient K8sSchedulerClient client = null
+
     protected Path workDir
+
     private boolean createdSymlinks = false
+
     private transient final Object createSymlinkHelper = new Object()
 
     protected LocalPath(Path path, LocalFileWalker.FileAttributes attributes, Path workDir ) {
@@ -287,4 +292,5 @@ class LocalPath implements Path, Serializable {
     int hashCode() {
         return path.hashCode() * 2 + 1
     }
+
 }

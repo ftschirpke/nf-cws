@@ -8,7 +8,6 @@ import java.nio.file.Path
 @CompileStatic
 class WOWFileSystemPathFactory extends FileSystemPathFactory {
 
-
     @Override
     protected Path parseUri(String uri) {
         if ( uri.startsWith("wow://") ) {

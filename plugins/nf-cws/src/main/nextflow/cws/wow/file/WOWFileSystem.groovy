@@ -77,4 +77,5 @@ class WOWFileSystem extends FileSystem {
     WatchService newWatchService() throws IOException {
         throw new UnsupportedOperationException("Watch service not supported by ${provider().getScheme().toUpperCase()} file system")
     }
+
 }

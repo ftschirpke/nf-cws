@@ -13,10 +13,15 @@ import nextflow.dag.DAG
 class SchedulerClient {
 
     private final CWSConfig config
+
     private final String runName
+
     private boolean registered = false
+
     private boolean closed = false
+
     private int tasksInBatch = 0
+
     protected String dns
 
     SchedulerClient( CWSConfig config, String runName ) {
@@ -138,8 +143,8 @@ class SchedulerClient {
 
     }
 
-
     ///* DAG */
+
     @CompileDynamic
     void submitVertices( List<DAG.Vertex> vertices ){
         List<Map< String, Object >> verticesToSubmit = vertices.collect {
@@ -239,4 +244,5 @@ class SchedulerClient {
         }
 
     }
+
 }

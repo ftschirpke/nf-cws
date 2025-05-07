@@ -74,12 +74,14 @@ class LocalFileWalker {
             boolean fileExists = data[ FILE_EXISTS ] == "1"
             destination = data.length > REAL_PATH && data[ REAL_PATH ] ? data[ REAL_PATH ] as Path : null
             if ( data.length != 8 ) {
+                this.directory = false
                 this.link = true
                 this.size = 0
                 this.fileType = null
                 this.creationDate = null
                 this.accessDate = null
                 this.modificationDate = null
+                this.local = false
                 return
             }
             this.link = !data[ REAL_PATH ].isEmpty()

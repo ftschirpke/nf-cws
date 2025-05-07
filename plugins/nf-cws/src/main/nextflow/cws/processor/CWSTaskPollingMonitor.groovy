@@ -19,6 +19,7 @@ class CWSTaskPollingMonitor extends TaskPollingMonitor {
      * Object to batch the task submission to achieve a better scheduling plan
      */
     private final SchedulerBatch schedulerBatch
+
     private final CWSConfig cwsConfig
 
     /**

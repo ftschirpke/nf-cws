@@ -11,11 +11,6 @@ class OfflineLocalPath extends LocalPath {
 
     final protected WorkdirHelper workdirHelper
 
-    private OfflineLocalPath(){
-        this(null, null, null, null)
-    }
-
-
     OfflineLocalPath( Path path, LocalFileWalker.FileAttributes attributes, Path workDir, WorkdirHelper workdirHelper ) {
         super(path, attributes, workDir)
         this.workdirHelper = workdirHelper

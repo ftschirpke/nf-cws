@@ -47,11 +47,6 @@ class WOWK8sWrapperBuilder extends CWSK8sWrapperBuilder {
         }
     }
 
-    /**
-     * only for testing purpose -- do not use
-     */
-    protected K8sWrapperBuilder() {}
-
     @Override
     protected boolean shouldUnstageOutputs() {
         return localWorkDir || super.shouldUnstageOutputs()

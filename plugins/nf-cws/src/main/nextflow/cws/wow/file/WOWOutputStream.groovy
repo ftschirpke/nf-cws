@@ -7,7 +7,9 @@ import nextflow.cws.SchedulerClient
 class WOWOutputStream extends OutputStream {
 
     private OutputStream inner
+
     private SchedulerClient client
+
     private LocalPath path
 
     WOWOutputStream(OutputStream inner, SchedulerClient client, LocalPath path) {
@@ -29,4 +31,5 @@ class WOWOutputStream extends OutputStream {
         File file = path.getInner().toFile()
         client.addFileLocation(path.toString(), file.size(), file.lastModified(), location.locationWrapperID as long, true)
     }
+
 }

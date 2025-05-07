@@ -20,11 +20,17 @@ import java.nio.file.Paths
 class K8sSchedulerClient extends SchedulerClient {
 
     private final CWSK8sConfig.K8sScheduler schedulerConfig
+
     private final CWSK8sClient k8sClient
+
     private final K8sConfig k8sConfig
+
     private final String namespace
+
     private final Collection<PodHostMount> hostMounts
+
     private final Collection<PodVolumeClaim> volumeClaims
+
     private String ip
 
     K8sSchedulerClient(

@@ -173,4 +173,5 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
     void upload(Path source, Path target, CopyOption... copyOptions) throws IOException {
         throw new UnsupportedOperationException("Uploading not supported by ${getScheme().toUpperCase()} file system provider")
     }
+
 }

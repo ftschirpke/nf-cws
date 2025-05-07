@@ -115,7 +115,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
-    private long calculateInputSize( List<Map<String,Object>> fileInputs ){
+    private static long calculateInputSize(List<Map<String,Object>> fileInputs ){
         return fileInputs
                 .parallelStream()
                 .mapToLong {
@@ -263,7 +263,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
-    private double parseDouble( String str, Path file , String row )  {
+    private static double parseDouble(String str, Path file, String row )  {
         try {
             return str.toDouble()
         }
@@ -273,7 +273,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         }
     }
 
-    private long parseLong( String str, Path file , String row )  {
+    private static long parseLong(String str, Path file, String row )  {
         try {
             return str.toLong()
         }
