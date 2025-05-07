@@ -24,12 +24,6 @@ class LocalPath implements Path, Serializable {
         this.workDir = workDir
     }
 
-    private LocalPath(){
-        path = null
-        this.attributes = null
-        this.workDir = null
-    }
-
     Path getInner() {
         path
     }
