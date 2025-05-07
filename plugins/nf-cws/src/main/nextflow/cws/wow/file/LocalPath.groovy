@@ -3,10 +3,10 @@ package nextflow.cws.wow.file
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import nextflow.cws.k8s.K8sSchedulerClient
+import nextflow.cws.wow.filesystem.WOWFileSystem
 import sun.net.ftp.FtpClient
 
 import java.nio.file.*
-import java.nio.file.attribute.BasicFileAttributes
 
 @Slf4j
 @CompileStatic
@@ -14,7 +14,7 @@ class LocalPath implements Path, Serializable {
 
     protected final Path path
 
-    private transient final LocalFileWalker.FileAttributes attributes
+    private transient final WOWFileAttributes attributes
 
     private static transient K8sSchedulerClient client = null
 
@@ -24,7 +24,7 @@ class LocalPath implements Path, Serializable {
 
     private transient final Object createSymlinkHelper = new Object()
 
-    protected LocalPath(Path path, LocalFileWalker.FileAttributes attributes, Path workDir ) {
+    protected LocalPath(Path path, WOWFileAttributes attributes, Path workDir ) {
         this.path = path
         this.attributes = attributes
         this.workDir = workDir
@@ -40,11 +40,11 @@ class LocalPath implements Path, Serializable {
         return path
     }
 
-    LocalPath toLocalPath( Path path, LocalFileWalker.FileAttributes attributes = null ){
+    LocalPath toLocalPath( Path path, WOWFileAttributes attributes = null ){
         toLocalPath( path, attributes, workDir )
     }
 
-    static LocalPath toLocalPath( Path path, LocalFileWalker.FileAttributes attributes, Path workDir ){
+    static LocalPath toLocalPath( Path path, WOWFileAttributes attributes, Path workDir ){
         ( path instanceof LocalPath ) ? path as LocalPath : new LocalPath( path, attributes, workDir )
     }
 
@@ -222,7 +222,7 @@ class LocalPath implements Path, Serializable {
     Path relativize(Path other) {
         if ( other instanceof LocalPath ){
             def localPath = (LocalPath) other
-            return toLocalPath( path.relativize( localPath.path), (LocalFileWalker.FileAttributes) localPath.attributes, localPath.workDir )
+            return toLocalPath( path.relativize( localPath.path), (WOWFileAttributes) localPath.attributes, localPath.workDir )
         }
         path.relativize( other )
     }
@@ -273,7 +273,7 @@ class LocalPath implements Path, Serializable {
         path.toString()
     }
 
-    BasicFileAttributes getAttributes(){
+    WOWFileAttributes getAttributes(){
         attributes
     }
 

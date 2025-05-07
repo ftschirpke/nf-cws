@@ -1,7 +1,8 @@
-package nextflow.cws.wow.file
+package nextflow.cws.wow.filesystem
 
 import groovy.transform.CompileStatic
 import nextflow.cws.SchedulerClient
+import nextflow.cws.wow.file.LocalPath
 
 @CompileStatic
 class WOWOutputStream extends OutputStream {

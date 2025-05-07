@@ -1,11 +1,11 @@
 package nextflow.cws
 
 import groovy.transform.CompileStatic
-import nextflow.cws.wow.serializer.LocalPathSerializer
 import nextflow.cws.wow.file.LocalPath
 import nextflow.cws.wow.file.OfflineLocalPath
-import nextflow.cws.wow.file.WOWFileSystemProvider
 import nextflow.cws.wow.file.WorkdirPath
+import nextflow.cws.wow.filesystem.WOWFileSystemProvider
+import nextflow.cws.wow.serializer.LocalPathSerializer
 import nextflow.file.FileHelper
 import nextflow.plugin.BasePlugin
 import nextflow.trace.TraceRecord

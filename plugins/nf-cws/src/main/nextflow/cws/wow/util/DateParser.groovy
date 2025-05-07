@@ -1,4 +1,4 @@
-package nextflow.cws.wow.file
+package nextflow.cws.wow.util
 
 import groovy.transform.CompileStatic
 

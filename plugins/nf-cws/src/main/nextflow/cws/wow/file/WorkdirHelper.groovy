@@ -37,7 +37,7 @@ class WorkdirHelper {
     }
 
     Path relativeToWorkdir( LocalPath path ) {
-        new LocalPath( rootPath.relativize( path.path ), (LocalFileWalker.FileAttributes) path.getAttributes(), path.workDir )
+        new LocalPath( rootPath.relativize( path.path ), path.getAttributes(), path.workDir )
     }
 
     int getNameCount() {

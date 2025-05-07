@@ -5,7 +5,7 @@ import groovy.json.JsonSlurper
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import nextflow.cws.wow.file.WOWFileSystemProvider
+import nextflow.cws.wow.filesystem.WOWFileSystemProvider
 import nextflow.dag.DAG
 
 @Slf4j
