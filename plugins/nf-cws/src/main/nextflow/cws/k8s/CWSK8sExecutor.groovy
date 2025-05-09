@@ -194,7 +194,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         String architectureStatFileName
         final String architecture = System.getProperty("os.arch")
         if (architecture == "amd64" || architecture == "x86_64") {
-            architectureStatFileName = "/nf-cws/getStatsAndResolveSymlinks_linux_x86"
+            architectureStatFileName = "/nf-cws/getStatsAndResolveSymlinks_linux_x86_64"
         } else if (architecture == "aarch64" || architecture == "arm64") {
             architectureStatFileName = "/nf-cws/getStatsAndResolveSymlinks_linux_aarch64"
         } else {
