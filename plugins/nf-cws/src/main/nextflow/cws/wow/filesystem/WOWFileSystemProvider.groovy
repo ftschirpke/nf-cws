@@ -22,7 +22,7 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
 
     static final WOWFileSystemProvider INSTANCE = new WOWFileSystemProvider()
 
-    protected SchedulerClient schedulerClient = null // TODO: support multiple clients
+    protected SchedulerClient schedulerClient = null
 
     private transient final Object createSymlinkHelper = new Object()
 
@@ -180,7 +180,7 @@ class WOWFileSystemProvider extends FileSystemProvider implements FileSystemTran
 
     @Override
     void checkAccess(Path path, AccessMode... accessModes) throws IOException {
-        // TODO: re-check that this may be empty
+        // all access is allowed
     }
 
     @Override
