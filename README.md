@@ -79,6 +79,31 @@ k8s {
 | autoClose       | -        | Stop the pod after the workflow is finished                                                                                  |
 | nodeSelector    | -        | A node selector for the CWS pod                                                                                              |
 
+#### WOW
+
+WOW is a new scheduling approach for dynamic scientific workflow systems that steers both data movement and task scheduling to reduce network congestion and overall runtime. 
+
+WOW requires some additional configuration due to its use of the local file system in addition to the distributed file system.
+
+```
+k8s {
+   localPath = '/localdata'
+   localStorageMountPath = '/localdata'
+   storage {
+       copyStrategy = 'ftp'
+       workdir = '/localdata/localwork/'
+   }
+}
+```
+
+| Attribute             | Required | Explanation                                                                                                                  |
+|:----------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
+| localPath             | yes      | Host path for the local mount
+| localStorageMountPath | no       | Container path for the local mount
+| storage.copyStrategy  | no       | Strategy to copy the files between nodes - currently only supports 'ftp' (and its alias 'copy')
+| storage.workdir       | no       | Working directory to use - must be inside of the locally mounted directory
+
+
 ### Tracing
 This plugin adds additional fields to the trace report. Therefore, you have to add the required fields to the `trace.fields` field in your Nextflow config (also check the official [documentation](https://www.nextflow.io/docs/latest/tracing.html#trace-report)).
 The following fields can be used:
@@ -106,3 +131,20 @@ The following fields can be used:
 | scheduler_delta_submitted_batch_end    |                     Time delta between a task was submitted, and the batch became schedulable                     |
 | memory_adapted                         |                                 The memory used for a task when sizing is active                                  |
 | input_size                             |                                   The sum of the input size of all task inputs                                    |
+| infiles_time:                          | (WOW) Time to walk through and retrieve stats of all local (input) files at task start
+| outfiles_time:                         | (WOW) Time to walk through and retrieve stats of all local (output) files at task start
+| create_bash_wrapper_time:              | (WOW) Time to create the bash wrapper
+| create_request_time:                   | ?
+| out_label:                             | ?
+| scheduler_files_bytes:                 | ?
+| scheduler_files_node_bytes:            | ?
+| scheduler_files_node_other_task_bytes: | ?
+| scheduler_files:                       | ?
+| scheduler_files_node:                  | ?
+| scheduler_files_node_other_task:       | ?
+| scheduler_depending_task:              | ?
+| scheduler_location_count:              | ?
+| scheduler_nodes_to_copy_from:          | ?
+| scheduler_no_alignment_found:          | ?
+| scheduler_time_delta_phase_three:      | ?
+| scheduler_copy_tasks:                  | ?
