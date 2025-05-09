@@ -42,8 +42,8 @@ class WOWFileAttributes implements BasicFileAttributes {
     private final boolean local
 
     WOWFileAttributes( String[] data ) {
-        if ( data.length != 8 && data[ FILE_EXISTS ] != "0" ) throw new RuntimeException( "Cannot parse row (8 columns required): ${data.join(',')}" )
         boolean fileExists = data[ FILE_EXISTS ] == "1"
+        if ( fileExists && data.length != 8 ) throw new RuntimeException( "Cannot parse row (8 columns required): ${data.join(',')}" )
         destination = data.length > REAL_PATH && data[ REAL_PATH ] ? data[ REAL_PATH ] as Path : null
         if ( data.length != 8 ) {
             this.directory = false
@@ -76,15 +76,27 @@ class WOWFileAttributes implements BasicFileAttributes {
     }
 
     WOWFileAttributes(Path path ) {
-        directory = true
-        link = false
-        size = 4096
-        fileType = 'directory'
-        creationDate = FileTime.fromMillis( 0 )
-        accessDate = FileTime.fromMillis( 0 )
-        modificationDate = FileTime.fromMillis( 0 )
-        destination = path
-        local = false
+        if (path.isDirectory()) {
+            directory = true
+            link = false
+            size = 4096
+            fileType = 'directory'
+            creationDate = FileTime.fromMillis(0)
+            accessDate = FileTime.fromMillis(0)
+            modificationDate = FileTime.fromMillis(0)
+            destination = path
+            local = false
+        } else {
+            directory = false
+            link = path.isLink()
+            size = path.size()
+            fileType = link ? 'symbolic link' : 'regular file'
+            creationDate = null
+            accessDate = null
+            modificationDate = FileTime.fromMillis(path.lastModified())
+            destination = link ? path.toRealPath() : path
+            local = !link
+        }
     }
 
     @Override

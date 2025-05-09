@@ -57,7 +57,6 @@ class LocalPath implements Path, Serializable {
     }
 
     boolean empty(){
-        //TODO empty file?
         this.size() == 0
     }
 
@@ -127,19 +126,17 @@ class LocalPath implements Path, Serializable {
 
     @Override
     Path normalize() {
-        toLocalPath( path.normalize() )
+        toLocalPath( path.normalize(), attributes )
     }
 
     @Override
     Path resolve(Path other) {
-        //TODO other attributes
-        toLocalPath( path.resolve( other ) )
+        toLocalPath( path.resolve( other ), new WOWFileAttributes( other ) )
     }
 
     @Override
     Path resolve(String other) {
-        //TODO other attributes
-        toLocalPath( path.resolve( other ) )
+        resolve( Path.of( other ) )
     }
 
     @Override
@@ -171,7 +168,7 @@ class LocalPath implements Path, Serializable {
     }
 
     Path toAbsolutePath(){
-        toLocalPath( path.toAbsolutePath() )
+        toLocalPath( path.toAbsolutePath(), attributes )
     }
 
     @Override
