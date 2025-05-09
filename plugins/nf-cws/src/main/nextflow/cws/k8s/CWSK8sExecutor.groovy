@@ -198,7 +198,7 @@ class CWSK8sExecutor extends K8sExecutor implements ExtensionPoint {
         } else if (architecture == "aarch64" || architecture == "arm64") {
             architectureStatFileName = "/nf-cws/getStatsAndResolveSymlinks_linux_aarch64"
         } else {
-            throw new RuntimeException("The ${architecture} architecture is by default not supported for WOW." +
+            throw new RuntimeException("The ${architecture} architecture is currently not supported for WOW. " +
                     "You may compile the getStatsAndResolveSymlinks.c yourself and add it to the resources directory.")
         }
         final contentStream = CWSK8sExecutor.class.getResourceAsStream(architectureStatFileName)
