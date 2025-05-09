@@ -67,6 +67,7 @@ class CWSK8sTaskHandler extends K8sTaskHandler {
         List<Map> volumes = specs?.volumes as List<Map>
         if ( volumes ) {
             for ( Map vol : volumes ) {
+                if ( vol.configMap == null ) continue
                 if ( (vol.configMap as Map)?.name == configMapName ) {
                     Map configMap = vol.configMap as Map
                     configMap.defaultMode = 0755
