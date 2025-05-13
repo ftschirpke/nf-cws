@@ -139,20 +139,7 @@ The following fields can be used:
 | scheduler_delta_submitted_batch_end    |                     Time delta between a task was submitted, and the batch became schedulable                     |
 | memory_adapted                         |                                 The memory used for a task when sizing is active                                  |
 | input_size                             |                                   The sum of the input size of all task inputs                                    |
-| infiles_time:                          | (WOW) Time to walk through and retrieve stats of all local (input) files at task start
-| outfiles_time:                         | (WOW) Time to walk through and retrieve stats of all local (output) files at task start
-| create_bash_wrapper_time:              | (WOW) Time to create the bash wrapper
-| create_request_time:                   | ?
-| out_label:                             | ?
-| scheduler_files_bytes:                 | ?
-| scheduler_files_node_bytes:            | ?
-| scheduler_files_node_other_task_bytes: | ?
-| scheduler_files:                       | ?
-| scheduler_files_node:                  | ?
-| scheduler_files_node_other_task:       | ?
-| scheduler_depending_task:              | ?
-| scheduler_location_count:              | ?
-| scheduler_nodes_to_copy_from:          | ?
-| scheduler_no_alignment_found:          | ?
-| scheduler_time_delta_phase_three:      | ?
-| scheduler_copy_tasks:                  | ?
+| infiles_time:                          |              (WOW) Time to walk through and retrieve stats of all local (input) files at task start               |
+| outfiles_time:                         |              (WOW) Time to walk through and retrieve stats of all local (output) files at task start              |
+| scheduler_time_delta_phase_three:      |  (WOW) List of time instances taken to calculcate step 3 of the WOW scheduling algorithm (see paper for details)  |                                                      
+| scheduler_copy_tasks:                  |                            (WOW) Number of times copy tasks were started for this task                            |
