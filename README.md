@@ -1,6 +1,7 @@
-# nf-cws plugin 
+# nf-cws plugin
 
-This plugin enables Nextflow to communicate with a Common Workflow Scheduler instance and transfer the required information.
+This plugin enables Nextflow to communicate with a Common Workflow Scheduler instance and transfer the required
+information.
 
 ### Supported Executors
 
@@ -10,6 +11,7 @@ This plugin enables Nextflow to communicate with a Common Workflow Scheduler ins
 
 To run Nextflow with this plugin, you need version >=`23.03.0-edge`.
 To activate the plugin, add `-plugins nf-cws` to your `nextflow` call or add the following to your `nextflow.config`:
+
 ```
 plugins {
   id 'nf-cws'
@@ -28,7 +30,8 @@ plugins {
 |    minMemory    |        - | The minimum memory to size a task to. Only used if memory prediction is performed.                                                                                               |
 |    maxMemory    |        - | The maximum memory to size a task to. Only used if memory prediction is performed.                                                                                               |
 
-##### Example: 
+##### Example:
+
 ```
 cws {
     dns = 'http://cws-scheduler/'
@@ -43,7 +46,8 @@ cws {
 
 #### K8s Executor
 
-The `k8s` executor allows starting a Common Workflow Scheduler instance on demand. This will happen if you do not define any CWS-related config. Otherwise, you can configure the following:
+The `k8s` executor allows starting a Common Workflow Scheduler instance on demand. This will happen if you do not define
+any CWS-related config. Otherwise, you can configure the following:
 
 ```
 k8s {
@@ -81,9 +85,11 @@ k8s {
 
 #### WOW
 
-WOW is a new scheduling approach for dynamic scientific workflow systems that steers both data movement and task scheduling to reduce network congestion and overall runtime. 
+WOW is a new scheduling approach for dynamic scientific workflow systems that steers both data movement and task
+scheduling to reduce network congestion and overall runtime.
 
-WOW requires some additional configuration due to its use of the local file system in addition to the distributed file system.
+WOW requires some additional configuration due to its use of the local file system in addition to the distributed file
+system.
 
 ```
 k8s {
@@ -96,16 +102,18 @@ k8s {
 }
 ```
 
-| Attribute             | Required | Explanation                                                                                                                  |
-|:----------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
-| localPath             | yes      | Host path for the local mount
-| localStorageMountPath | no       | Container path for the local mount
-| storage.copyStrategy  | no       | Strategy to copy the files between nodes - currently only supports 'ftp' (and its alias 'copy')
-| storage.workdir       | no       | Working directory to use - must be inside of the locally mounted directory
-
+| Attribute             | Required | Explanation                                                                                     |
+|:----------------------|----------|-------------------------------------------------------------------------------------------------|
+| localPath             | yes      | Host path for the local mount                                                                   
+| localStorageMountPath | no       | Container path for the local mount                                                              
+| storage.copyStrategy  | no       | Strategy to copy the files between nodes - currently only supports 'ftp' (and its alias 'copy') 
+| storage.workdir       | no       | Working directory to use - must be inside of the locally mounted directory                      
 
 ### Tracing
-This plugin adds additional fields to the trace report. Therefore, you have to add the required fields to the `trace.fields` field in your Nextflow config (also check the official [documentation](https://www.nextflow.io/docs/latest/tracing.html#trace-report)).
+
+This plugin adds additional fields to the trace report. Therefore, you have to add the required fields to
+the `trace.fields` field in your Nextflow config (also check the
+official [documentation](https://www.nextflow.io/docs/latest/tracing.html#trace-report)).
 The following fields can be used:
 
 | Name                                   |                                                    Description                                                    |
