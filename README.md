@@ -3,6 +3,10 @@
 This plugin enables Nextflow to communicate with a Common Workflow Scheduler instance and transfer the required
 information.
 
+For more information on the scheduling,
+see the [scheduler repository](https://github.com/CommonWorkflowScheduler/KubernetesScheduler) and the [respective
+papers](#citation):
+
 ### Supported Executors
 
 - k8s
@@ -143,3 +147,44 @@ The following fields can be used:
 | outfiles_time:                         |              (WOW) Time to walk through and retrieve stats of all local (output) files at task start              |
 | scheduler_time_delta_phase_three:      |  (WOW) List of time instances taken to calculcate step 3 of the WOW scheduling algorithm (see paper for details)  |                                                      
 | scheduler_copy_tasks:                  |                            (WOW) Number of times copy tasks were started for this task                            |
+
+---
+
+## Citation
+
+If you use this software or artifacts in a publication, please cite it as:
+
+#### Text
+
+Lehmann Fabian, Jonathan Bader, Friedrich Tschirpke, Lauritz Thamsen, and Ulf Leser. **How Workflow Engines Should Talk
+to Resource Managers: A Proposal for a Common Workflow Scheduling Interface**. In 2023 IEEE/ACM 23rd International
+Symposium on Cluster, Cloud and Internet Computing (CCGrid). Bangalore, India, 2023.
+
+([https://arxiv.org/pdf/2302.07652.pdf](https://arxiv.org/pdf/2302.07652.pdf))
+
+#### BibTeX
+
+```
+@inproceedings{lehmannHowWorkflowEngines2023,
+ author = {Lehmann, Fabian and Bader, Jonathan and Tschirpke, Friedrich and Thamsen, Lauritz and Leser, Ulf},
+ booktitle = {2023 IEEE/ACM 23rd International Symposium on Cluster, Cloud and Internet Computing (CCGrid)},
+ title = {How Workflow Engines Should Talk to Resource Managers: A Proposal for a Common Workflow Scheduling Interface},
+ year = {2023},
+ address = {{Bangalore, India}},
+ doi = {10.1109/CCGrid57682.2023.00025}
+}
+```
+
+#### Strategy-specific Citation
+
+Please note that the following strategies originated in individual papers:
+
+- PONDER: [https://arxiv.org/pdf/2408.00047.pdf](https://arxiv.org/pdf/2408.00047.pdf)
+- WOW: [https://arxiv.org/pdf/2503.13072.pdf](https://arxiv.org/pdf/2503.13072.pdf)
+
+---
+
+#### Acknowledgement:
+
+This work was funded by the German Research Foundation (DFG), CRC 1404: "FONDA: Foundations of Workflows for Large-Scale
+Scientific Data Analysis."
