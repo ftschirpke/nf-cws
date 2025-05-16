@@ -34,7 +34,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang lld gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
-      - name: Compile using make
+      - name: Compile C script using make
         run: make c_scripts
 
       - name: Setup Java ${{ matrix.java_version }}
